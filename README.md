@@ -49,6 +49,8 @@ function Example({ rows }) {
 | `theme` | `'auto' \| 'light' \| 'dark'` | `'auto'` | `'auto'` follows the OS/browser `prefers-color-scheme`. `'light'`/`'dark'` force a theme regardless of OS setting. |
 | `expandable` | `ExpandableConfig` | `undefined` | Adds an expand-toggle column. See [Expandable rows](#expandable-rows-accordion--child-table). Omit to disable entirely. |
 | `className` | `string` | `''` | Extra class name(s) appended to the root `.table-container` element. |
+| `caption` | `ReactNode` | `undefined` | Renders an HTML `<caption>` above the table, which also becomes its accessible name for screen readers. Recommended over `aria-label` when the caption text can be visible. |
+| `aria-label` | `string` | `undefined` | Accessible name for the table when no visible `caption` is used. Ignored if `caption` is set (the caption already provides the accessible name). |
 
 ### Column shape
 
@@ -160,6 +162,16 @@ All colors are CSS custom properties scoped to `.table-container`, with a light 
 ```
 
 See [`src/components/Table/table.css`](src/components/Table/table.css) for the full list of variables.
+
+## Accessibility
+
+- **Semantics**: real `<table>`/`<thead>`/`<tbody>`/`<th scope="col">` markup throughout; pass `caption` (or `aria-label`) to give the table an accessible name.
+- **Sortable headers** are reachable by <kbd>Tab</kbd> and toggled with <kbd>Enter</kbd> or <kbd>Space</kbd>, with `aria-sort` kept in sync on the active column.
+- **Clickable rows** (`onRowClick`) are focusable and activate with <kbd>Enter</kbd>/<kbd>Space</kbd>, matching mouse click behavior.
+- **Row action menu**: the trigger exposes `aria-haspopup`/`aria-expanded`; opening it moves focus to the first item, <kbd>↑</kbd>/<kbd>↓</kbd>/<kbd>Home</kbd>/<kbd>End</kbd> navigate items, <kbd>Escape</kbd> or clicking outside closes it and returns focus to the trigger.
+- **Expand toggle** (accordion / child table) is a real button with `aria-expanded` and an accessible label; decorative glyphs (chevrons, sort arrows, the kebab icon) are marked `aria-hidden`.
+- **Live region**: a visually-hidden `aria-live="polite"` region announces the result count after search/filter/page changes, without wrapping the interactive table itself (which would cause it to be re-announced on every render).
+- **Focus visibility**: all interactive controls (sort headers, buttons, inputs, selects, clickable rows) get a visible focus outline using the theme's accent color, so keyboard focus is never invisible in either theme.
 
 ## Development
 

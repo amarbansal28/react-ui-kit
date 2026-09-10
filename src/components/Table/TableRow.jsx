@@ -21,11 +21,24 @@ export function TableRow({ row, rowIndex }) {
   const expanded = canExpand && isRowExpanded(rowId)
   const colSpan = columns.length + (hasActionColumn ? 1 : 0) + (hasExpandColumn ? 1 : 0)
 
+  const handleRowKeyDown = onRowClick
+    ? (event) => {
+        if (event.target !== event.currentTarget) return
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onRowClick(row, rowIndex)
+        }
+      }
+    : undefined
+
   return (
     <Fragment>
       <tr
         className={`table-row${onRowClick ? ' table-row--clickable' : ''}${expanded ? ' table-row--expanded' : ''}`}
         onClick={onRowClick ? () => onRowClick(row, rowIndex) : undefined}
+        onKeyDown={handleRowKeyDown}
+        tabIndex={onRowClick ? 0 : undefined}
+        role={onRowClick ? 'button' : undefined}
         data-row-id={rowId}
       >
         {hasExpandColumn && (
@@ -38,7 +51,7 @@ export function TableRow({ row, rowIndex }) {
                 aria-expanded={expanded}
                 onClick={() => toggleRowExpanded(rowId)}
               >
-                ›
+                <span aria-hidden="true">›</span>
               </button>
             )}
           </td>

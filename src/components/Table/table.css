@@ -55,6 +55,13 @@
   --table-shadow: rgba(0, 0, 0, 0.45);
 }
 
+.table-container button:focus-visible,
+.table-container input:focus-visible,
+.table-container select:focus-visible {
+  outline: 2px solid var(--table-accent);
+  outline-offset: 1px;
+}
+
 /* Toolbar */
 .table-toolbar {
   display: flex;
@@ -142,6 +149,11 @@
   color: var(--table-text);
 }
 
+.table-header-cell--sortable:focus-visible {
+  outline: 2px solid var(--table-accent);
+  outline-offset: -2px;
+}
+
 .table-header-cell-content {
   display: inline-flex;
   align-items: center;
@@ -187,6 +199,11 @@
   cursor: pointer;
 }
 
+.table-row--clickable:focus-visible {
+  outline: 2px solid var(--table-accent);
+  outline-offset: -2px;
+}
+
 .table-cell {
   padding: 0.7rem 1rem;
   font-size: 0.9rem;
@@ -203,6 +220,26 @@
   padding: 2rem 1rem;
   color: var(--table-text-muted);
   font-size: 0.9rem;
+}
+
+.table-caption {
+  text-align: left;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.85rem;
+  color: var(--table-text-muted);
+  caption-side: top;
+}
+
+.table-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Expandable rows (accordion / child table) */

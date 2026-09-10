@@ -1,58 +1,27 @@
 import { useState } from 'react'
 import { Table } from 'react-ui-kit'
-
-const STATUS_OPTIONS = ['Active', 'Inactive', 'Pending']
-
-function makeRows(count) {
-  return Array.from({ length: count }, (_, i) => ({
-    id: i + 1,
-    name: `User ${i + 1}`,
-    email: `user${i + 1}@example.com`,
-    status: STATUS_OPTIONS[i % STATUS_OPTIONS.length],
-    signupDate: new Date(2024, i % 12, (i % 28) + 1).toISOString().slice(0, 10),
-    score: Math.round(Math.random() * 1000),
-    bio: `User ${i + 1} has been a member since ${new Date(2024, i % 12, (i % 28) + 1).toISOString().slice(0, 10)} and has placed ${(i % 5) + 1} orders so far.`,
-    orders: Array.from({ length: (i % 5) + 1 }, (_, j) => ({
-      orderId: `ORD-${i + 1}-${j + 1}`,
-      item: ['Keyboard', 'Monitor', 'Mouse', 'Headset', 'Webcam'][(i + j) % 5],
-      quantity: (j % 3) + 1,
-      total: Math.round((j + 1) * 24.5 * 100) / 100,
-    })),
-  }))
-}
+import { makeRows, sampleColumns, orderColumns } from '../../src/components/Table/Table.fixtures'
 
 const ALL_ROWS = makeRows(87)
 
-const columns = [
-  { key: 'id', header: 'ID', accessor: 'id', width: 60, sortable: true, searchable: false },
-  { key: 'name', header: 'Name', accessor: 'name', sortable: true, searchable: true },
-  { key: 'email', header: 'Email', accessor: 'email', sortable: true, searchable: true },
-  {
-    key: 'status',
-    header: 'Status',
-    accessor: 'status',
-    sortable: true,
-    filterable: true,
-    filterOptions: STATUS_OPTIONS,
-    render: (value) => (
-      <span
-        style={{
-          padding: '2px 8px',
-          borderRadius: 999,
-          fontSize: '0.75rem',
-          background:
-            value === 'Active' ? '#1f4d2e' : value === 'Pending' ? '#4d3d1f' : '#4d1f1f',
-          color:
-            value === 'Active' ? '#7CFC00' : value === 'Pending' ? '#ffd27c' : '#ff8c8c',
-        }}
-      >
-        {value}
-      </span>
-    ),
-  },
-  { key: 'signupDate', header: 'Signup Date', accessor: 'signupDate', sortable: true, align: 'right' },
-  { key: 'score', header: 'Score', accessor: 'score', sortable: true, align: 'right' },
-]
+const STATUS_STYLES = {
+  Active: { background: '#1f4d2e', color: '#7CFC00' },
+  Pending: { background: '#4d3d1f', color: '#ffd27c' },
+  Inactive: { background: '#4d1f1f', color: '#ff8c8c' },
+}
+
+const columns = sampleColumns.map((column) =>
+  column.key === 'status'
+    ? {
+        ...column,
+        render: (value) => (
+          <span style={{ padding: '2px 8px', borderRadius: 999, fontSize: '0.75rem', ...STATUS_STYLES[value] }}>
+            {value}
+          </span>
+        ),
+      }
+    : column,
+)
 
 function TableDemoPagination({ theme }) {
   return (
@@ -119,19 +88,6 @@ function TableDemoAccordion({ theme }) {
     />
   )
 }
-
-const orderColumns = [
-  { key: 'orderId', header: 'Order ID', accessor: 'orderId' },
-  { key: 'item', header: 'Item', accessor: 'item', sortable: true },
-  { key: 'quantity', header: 'Qty', accessor: 'quantity', align: 'right' },
-  {
-    key: 'total',
-    header: 'Total',
-    accessor: 'total',
-    align: 'right',
-    render: (value) => `$${value.toFixed(2)}`,
-  },
-]
 
 function TableDemoChildTable({ theme }) {
   return (

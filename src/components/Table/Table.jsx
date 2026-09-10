@@ -20,6 +20,8 @@ export function Table({
   getRowId,
   onRowClick,
   emptyMessage = 'No data available',
+  caption,
+  'aria-label': ariaLabel,
 
   sortable = true,
 
@@ -154,8 +156,12 @@ export function Table({
         data-table-theme={theme === 'auto' ? undefined : theme}
       >
         <TableToolbar />
+        <span className="table-visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+          {mode === 'pagination' ? `${tableData.total} results` : `${tableData.total} rows loaded`}
+        </span>
         <div className="table-scroll">
-          <table className="table">
+          <table className="table" aria-label={caption ? undefined : ariaLabel}>
+            {caption && <caption className="table-caption">{caption}</caption>}
             <TableHeader />
             <tbody className="table-body">
               {rows.length === 0 ? (
