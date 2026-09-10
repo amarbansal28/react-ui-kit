@@ -1,0 +1,51 @@
+{
+  "name": "react-ui-kit",
+  "version": "0.1.0",
+  "description": "A generic React component library. Currently ships Table: a responsive table with sorting, filtering, search, pagination/lazy-load, action menus, and expandable (accordion / nested table) rows.",
+  "type": "module",
+  "main": "./dist/react-ui-kit.cjs",
+  "module": "./dist/react-ui-kit.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/react-ui-kit.mjs",
+      "require": "./dist/react-ui-kit.cjs"
+    },
+    "./style.css": "./dist/react-ui-kit.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "keywords": [
+    "react",
+    "component-library",
+    "ui-kit",
+    "table",
+    "data-table",
+    "pagination",
+    "sorting",
+    "filtering"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "dev": "cd demo && vite",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview:demo": "cd demo && vite preview"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "oxlint": "^1.79.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "vite": "^8.2.2"
+  }
+}
