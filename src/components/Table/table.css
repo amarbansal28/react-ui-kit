@@ -8,9 +8,9 @@
   --table-nested-bg: #f0f1f6;
   --table-text: #1a1a29;
   --table-text-muted: #6b6b80;
-  --table-accent: #4c6fff;
+  --table-accent: #3654e0;
   --table-accent-contrast: #ffffff;
-  --table-danger: #d13a4f;
+  --table-danger: #c22e42;
   --table-shadow: rgba(20, 20, 40, 0.12);
 
   display: flex;

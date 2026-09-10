@@ -172,6 +172,20 @@ See [`src/components/Table/table.css`](src/components/Table/table.css) for the f
 - **Expand toggle** (accordion / child table) is a real button with `aria-expanded` and an accessible label; decorative glyphs (chevrons, sort arrows, the kebab icon) are marked `aria-hidden`.
 - **Live region**: a visually-hidden `aria-live="polite"` region announces the result count after search/filter/page changes, without wrapping the interactive table itself (which would cause it to be re-announced on every render).
 - **Focus visibility**: all interactive controls (sort headers, buttons, inputs, selects, clickable rows) get a visible focus outline using the theme's accent color, so keyboard focus is never invisible in either theme.
+- **Color contrast**: every text/background color pair in both themes (accent, danger, muted text) is verified to meet WCAG AA (≥4.5:1 for normal text).
+
+Verified with automated `axe-core` checks (via Storybook's `@storybook/addon-a11y`, see below) plus manual keyboard-only and contrast-ratio testing. If you find an accessibility issue, please open one — it's treated as a bug, not a feature request.
+
+## Storybook
+
+Every story lives next to its component (`Table.stories.jsx`) and doubles as living documentation plus a visual/interaction testbed. The `@storybook/addon-a11y` addon runs `axe-core` against each story automatically (see the "Accessibility" tab in the Storybook UI).
+
+```bash
+npm run storybook         # http://localhost:6006
+npm run build-storybook   # static build to storybook-static/
+```
+
+Stories cover: default rendering, search/filters, row actions, custom/no pagination, lazy-load, both expandable-row modes (accordion and nested child table), dark theme, empty state, and a captioned table. Add a new story by dropping a `<Component>.stories.jsx` next to any component under `src/components/`.
 
 ## Development
 
@@ -193,15 +207,20 @@ src/
       TableContext.jsx
       useTableData.js
       table.css
+      Table.fixtures.js     # shared sample data/columns for stories
+      Table.stories.jsx     # Storybook stories
       index.js              # component-level barrel export
 demo/                        # Vite app for local dev/preview, not published
+.storybook/                  # Storybook config (main.js, preview.js)
 ```
 
 ```bash
 npm install
-npm run dev       # demo app with HMR against local src/
-npm run build     # builds the publishable library to dist/
-npm run lint      # oxlint across src/ and demo/src/
+npm run dev               # demo app with HMR against local src/
+npm run build              # builds the publishable library to dist/
+npm run lint                # oxlint across src/ and demo/src/
+npm run storybook           # Storybook dev server at :6006
+npm run build-storybook    # static Storybook build
 ```
 
-Adding a new component: create `src/components/<Name>/` with its own files, barrel export (`index.js`), and CSS; then add `export * from './components/<Name>'` to `src/index.js`.
+Adding a new component: create `src/components/<Name>/` with its own files, barrel export (`index.js`), CSS, and a `<Name>.stories.jsx`; then add `export * from './components/<Name>'` to `src/index.js`.
