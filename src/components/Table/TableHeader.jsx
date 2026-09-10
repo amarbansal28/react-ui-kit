@@ -43,15 +43,21 @@ export function TableHeader() {
               className={`table-header-cell${columnSortable ? ' table-header-cell--sortable' : ''}`}
               style={{ width: column.width, textAlign: column.align ?? 'left' }}
               aria-sort={isActive ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
-              onClick={columnSortable ? handleSort : undefined}
-              onKeyDown={columnSortable ? handleKeyDown : undefined}
-              tabIndex={columnSortable ? 0 : undefined}
-              role={columnSortable ? 'button' : undefined}
             >
-              <span className="table-header-cell-content">
-                {column.header}
-                {columnSortable && <SortIcon direction={isActive ? sort.direction : null} />}
-              </span>
+              {columnSortable ? (
+                <span
+                  className="table-header-cell-content"
+                  onClick={handleSort}
+                  onKeyDown={handleKeyDown}
+                  tabIndex={0}
+                  role="button"
+                >
+                  {column.header}
+                  <SortIcon direction={isActive ? sort.direction : null} />
+                </span>
+              ) : (
+                <span className="table-header-cell-content">{column.header}</span>
+              )}
             </th>
           )
         })}

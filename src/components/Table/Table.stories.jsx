@@ -83,30 +83,32 @@ export const NoPagination = {
   },
 }
 
+function LazyLoadStory(args) {
+  const PAGE = 15
+  const [rows, setRows] = useState(ALL_ROWS.slice(0, PAGE))
+  const [loading, setLoading] = useState(false)
+
+  const loadMore = async () => {
+    setLoading(true)
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    setRows((prev) => ALL_ROWS.slice(0, prev.length + PAGE))
+    setLoading(false)
+  }
+
+  return (
+    <Table
+      {...args}
+      data={rows}
+      mode="lazy"
+      onLoadMore={loadMore}
+      hasMore={rows.length < ALL_ROWS.length}
+      loadingMore={loading}
+    />
+  )
+}
+
 export const LazyLoad = {
-  render: (args) => {
-    const PAGE = 15
-    const [rows, setRows] = useState(ALL_ROWS.slice(0, PAGE))
-    const [loading, setLoading] = useState(false)
-
-    const loadMore = async () => {
-      setLoading(true)
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      setRows((prev) => ALL_ROWS.slice(0, prev.length + PAGE))
-      setLoading(false)
-    }
-
-    return (
-      <Table
-        {...args}
-        data={rows}
-        mode="lazy"
-        onLoadMore={loadMore}
-        hasMore={rows.length < ALL_ROWS.length}
-        loadingMore={loading}
-      />
-    )
-  },
+  render: (args) => <LazyLoadStory {...args} />,
   args: {
     pagination: { visible: true },
     search: { visible: false },
