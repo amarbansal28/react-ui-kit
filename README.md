@@ -173,8 +173,14 @@ See [`src/components/Table/table.css`](src/components/Table/table.css) for the f
 - **Live region**: a visually-hidden `aria-live="polite"` region announces the result count after search/filter/page changes, without wrapping the interactive table itself (which would cause it to be re-announced on every render).
 - **Focus visibility**: all interactive controls (sort headers, buttons, inputs, selects, clickable rows) get a visible focus outline using the theme's accent color, so keyboard focus is never invisible in either theme.
 - **Color contrast**: every text/background color pair in both themes (accent, danger, muted text) is verified to meet WCAG AA (≥4.5:1 for normal text).
+- **Target size** (WCAG 2.2 SC 2.5.8, Level AA): every interactive control — sort headers, the row-actions trigger, the expand toggle, pagination buttons — has a hit target of at least 24×24 CSS px, even where the visible glyph is smaller.
 
-Verified with automated `axe-core` checks (via Storybook's `@storybook/addon-a11y`, see below) plus manual keyboard-only and contrast-ratio testing. If you find an accessibility issue, please open one — it's treated as a bug, not a feature request.
+Conformance target: **WCAG 2.2 Level AA**. Verified two ways:
+
+- **Automated**: `@storybook/addon-a11y` runs `axe-core` against every story live in the Storybook UI (see below); `npm run test:a11y` runs the same `axe-core` ruleset (`wcag2a`/`wcag2aa`/`wcag21a`/`wcag21aa`/`wcag22aa`) via Playwright against the running demo app, in its default state, with expandable rows open, with the row action menu open, and in dark theme — plus an explicit check that every interactive control meets the 24×24px target-size minimum. This runs as part of `npm run test:e2e` and is not just a Storybook-only check.
+- **Manual**: keyboard-only navigation and contrast-ratio spot checks across both themes.
+
+If you find an accessibility issue, please open one — it's treated as a bug, not a feature request.
 
 ## Storybook
 
@@ -225,6 +231,7 @@ npm run test                 # run the unit/component test suite once (Vitest)
 npm run test:watch          # Vitest in watch mode
 npm run test:e2e             # run end-to-end tests against the demo app (Playwright)
 npm run test:e2e:ui         # Playwright's interactive UI mode
+npm run test:a11y            # run just the axe-core/WCAG 2.2 AA checks (subset of test:e2e)
 npm run lint                # oxlint across src/ and demo/src/
 npm run storybook           # Storybook dev server at :6006
 npm run build-storybook    # static Storybook build
@@ -242,6 +249,7 @@ Tests use [Vitest](https://vitest.dev) with [`@testing-library/react`](https://t
 End-to-end tests use [Playwright](https://playwright.dev), configured in `playwright.config.ts`. `npm run test:e2e` starts the demo app (`npm run dev -- --port 5183`) automatically and drives it in a real headless Chromium browser; specs live under `e2e/`:
 
 - `e2e/table.spec.ts` — covers the demo's four table instances end to end: pagination search/sort/filter/page-size/next-page, the row action menu (including the native `alert()` dialog it triggers), lazy-load's "Load more" through to "All rows loaded", accordion vs. independent row expansion, nested child tables, and light/dark theme switching. Also fails any test whose page logs a browser console error.
+- `e2e/accessibility.spec.ts` — runs `@axe-core/playwright` (`wcag2a`/`wcag2aa`/`wcag21a`/`wcag21aa`/`wcag22aa` rules) against the demo in its default state, with every expandable row open, with the row action menu open, and in dark theme, plus an explicit 24×24px minimum target-size check on every interactive control. See [Accessibility](#accessibility) above.
 
 Playwright downloads its own Chromium binary on first run (`npx playwright install chromium` if it's not already cached).
 

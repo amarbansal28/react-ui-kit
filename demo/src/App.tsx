@@ -148,12 +148,16 @@ export default function App() {
         transition: 'background 0.15s ease, color 0.15s ease',
       }}
     >
-      <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <span>Theme:</span>
+      <main style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <h1 style={{ margin: 0 }}>react-ui-kit demo</h1>
+
+        <div role="group" aria-label="Theme" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <span aria-hidden="true">Theme:</span>
           {(['auto', 'light', 'dark'] as const).map((t) => (
             <button
               key={t}
+              type="button"
+              aria-pressed={theme === t}
               onClick={() => setTheme(t)}
               style={{
                 padding: '0.4rem 0.8rem',
@@ -170,23 +174,23 @@ export default function App() {
           ))}
         </div>
 
-        <div>
+        <section>
           <h2>Pagination mode</h2>
           <TableDemoPagination theme={theme} />
-        </div>
-        <div>
+        </section>
+        <section>
           <h2>Lazy-load mode</h2>
           <TableDemoLazy theme={theme} />
-        </div>
-        <div>
+        </section>
+        <section>
           <h2>Accordion (expand for detail text)</h2>
           <TableDemoAccordion theme={theme} />
-        </div>
-        <div>
+        </section>
+        <section>
           <h2>Child table (expand for nested orders table)</h2>
           <TableDemoChildTable theme={theme} />
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   )
 }
