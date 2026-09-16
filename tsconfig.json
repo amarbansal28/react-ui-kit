@@ -18,5 +18,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", ".storybook"]
+  "include": ["src", ".storybook", "vitest.config.ts", "vitest.setup.ts"]
 }

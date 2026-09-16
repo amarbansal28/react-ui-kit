@@ -210,6 +210,7 @@ src/
       table.css
       Table.fixtures.ts     # shared sample data/columns for stories
       Table.stories.tsx     # Storybook stories
+      *.test.ts(x)          # unit/component tests, next to the code they cover
       index.ts              # component-level barrel export
 demo/                        # Vite app for local dev/preview, not published
 .storybook/                  # Storybook config (main.ts, preview.ts)
@@ -220,9 +221,20 @@ npm install
 npm run dev               # demo app with HMR against local src/
 npm run build              # builds the publishable library + .d.ts to dist/
 npm run typecheck           # tsc --noEmit across src/ and demo/src/
+npm run test                 # run the test suite once (Vitest)
+npm run test:watch          # Vitest in watch mode
 npm run lint                # oxlint across src/ and demo/src/
 npm run storybook           # Storybook dev server at :6006
 npm run build-storybook    # static Storybook build
 ```
+
+### Testing
+
+Tests use [Vitest](https://vitest.dev) with [`@testing-library/react`](https://testing-library.com/react) and jsdom, configured in `vitest.config.ts` / `vitest.setup.ts`. Each `*.test.ts`/`*.test.tsx` file lives next to the component or hook it covers:
+
+- `useTableData.test.ts` — sort/search/filter/pagination logic in isolation, via `renderHook`.
+- `Table.test.tsx` — full component behavior: rendering, search, sort, filters, pagination, row clicks, row actions, expandable rows, lazy-load.
+- `Pagination.test.tsx` — page-range display, page-number/ellipsis generation, disabled states, page-size changes.
+- `ActionMenu.test.tsx` — menu open/close, keyboard navigation (arrows/Home/End/Escape), outside-click dismissal, disabled/hidden actions.
 
 Adding a new component: create `src/components/<Name>/` with its own files, barrel export (`index.ts`), CSS, and a `<Name>.stories.tsx`; then add `export * from './components/<Name>'` to `src/index.ts`.
