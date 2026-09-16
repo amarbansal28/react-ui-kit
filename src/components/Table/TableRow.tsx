@@ -1,9 +1,16 @@
 import { Fragment } from 'react'
+import type { KeyboardEvent } from 'react'
 import { useTableContext } from './TableContext'
 import { TableRowData } from './TableRowData'
 import { ActionMenu } from './ActionMenu'
+import { columnKey } from './types'
 
-export function TableRow({ row, rowIndex }) {
+export interface TableRowProps<Row = any> {
+  row: Row
+  rowIndex: number
+}
+
+export function TableRow<Row>({ row, rowIndex }: TableRowProps<Row>) {
   const {
     columns,
     actions,
@@ -17,12 +24,12 @@ export function TableRow({ row, rowIndex }) {
   } = useTableContext()
 
   const rowId = getRowId ? getRowId(row, rowIndex) : rowIndex
-  const canExpand = hasExpandColumn && (expandable.isExpandable ? expandable.isExpandable(row) : true)
+  const canExpand = hasExpandColumn && (expandable?.isExpandable ? expandable.isExpandable(row) : true)
   const expanded = canExpand && isRowExpanded(rowId)
   const colSpan = columns.length + (hasActionColumn ? 1 : 0) + (hasExpandColumn ? 1 : 0)
 
   const handleRowKeyDown = onRowClick
-    ? (event) => {
+    ? (event: KeyboardEvent<HTMLTableRowElement>) => {
         if (event.target !== event.currentTarget) return
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault()
@@ -57,7 +64,7 @@ export function TableRow({ row, rowIndex }) {
           </td>
         )}
         {columns.map((column) => (
-          <TableRowData key={column.key ?? column.accessor} column={column} row={row} rowIndex={rowIndex} />
+          <TableRowData key={columnKey(column)} column={column} row={row} rowIndex={rowIndex} />
         ))}
         {hasActionColumn && (
           <td className="table-cell table-cell--actions" onClick={(e) => e.stopPropagation()}>
@@ -68,7 +75,7 @@ export function TableRow({ row, rowIndex }) {
       {expanded && (
         <tr className="table-row-expanded-content">
           <td colSpan={colSpan}>
-            <div className="table-expanded-panel">{expandable.render(row, rowIndex)}</div>
+            <div className="table-expanded-panel">{expandable!.render(row, rowIndex)}</div>
           </td>
         </tr>
       )}

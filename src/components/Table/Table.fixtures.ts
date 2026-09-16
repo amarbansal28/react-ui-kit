@@ -1,8 +1,28 @@
-// Shared sample data/columns used by Table.stories.jsx (and available for
+import type { Column } from './types'
+
+// Shared sample data/columns used by Table.stories.tsx (and available for
 // reuse anywhere else example rows are useful, e.g. the demo app).
 export const STATUS_OPTIONS = ['Active', 'Inactive', 'Pending']
 
-export function makeRows(count) {
+export interface Order {
+  orderId: string
+  item: string
+  quantity: number
+  total: number
+}
+
+export interface UserRow {
+  id: number
+  name: string
+  email: string
+  status: string
+  signupDate: string
+  score: number
+  bio: string
+  orders: Order[]
+}
+
+export function makeRows(count: number): UserRow[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     name: `User ${i + 1}`,
@@ -22,7 +42,7 @@ export function makeRows(count) {
   }))
 }
 
-export const sampleColumns = [
+export const sampleColumns: Column<UserRow>[] = [
   { key: 'id', header: 'ID', accessor: 'id', width: 60, sortable: true, searchable: false },
   { key: 'name', header: 'Name', accessor: 'name', sortable: true, searchable: true },
   { key: 'email', header: 'Email', accessor: 'email', sortable: true, searchable: true },
@@ -38,7 +58,7 @@ export const sampleColumns = [
   { key: 'score', header: 'Score', accessor: 'score', sortable: true, align: 'right' },
 ]
 
-export const orderColumns = [
+export const orderColumns: Column<Order>[] = [
   { key: 'orderId', header: 'Order ID', accessor: 'orderId' },
   { key: 'item', header: 'Item', accessor: 'item', sortable: true },
   { key: 'quantity', header: 'Qty', accessor: 'quantity', align: 'right' },
@@ -47,6 +67,6 @@ export const orderColumns = [
     header: 'Total',
     accessor: 'total',
     align: 'right',
-    render: (value) => `$${value.toFixed(2)}`,
+    render: (value) => `$${(value as number).toFixed(2)}`,
   },
 ]

@@ -1,6 +1,6 @@
-function getPageNumbers(current, totalPages) {
+function getPageNumbers(current: number, totalPages: number): Array<number | '…'> {
   const delta = 1
-  const pages = []
+  const pages: Array<number | '…'> = []
   for (let i = 1; i <= totalPages; i++) {
     if (i === 1 || i === totalPages || (i >= current - delta && i <= current + delta)) {
       pages.push(i)
@@ -9,6 +9,17 @@ function getPageNumbers(current, totalPages) {
     }
   }
   return pages
+}
+
+export interface PaginationProps {
+  page: number
+  pageSize: number
+  total: number
+  onPageChange: (page: number) => void
+  onPageSizeChange: (size: number) => void
+  pageSizeOptions?: number[]
+  showPageSize?: boolean
+  showPageNumbers?: boolean
 }
 
 export function Pagination({
@@ -20,7 +31,7 @@ export function Pagination({
   pageSizeOptions = [10, 25, 50, 100],
   showPageSize = true,
   showPageNumbers = true,
-}) {
+}: PaginationProps) {
   const totalPages = pageSize === -1 ? 1 : Math.max(1, Math.ceil(total / pageSize))
   const clampedPage = Math.min(page, totalPages)
   const rangeStart = total === 0 ? 0 : (clampedPage - 1) * pageSize + 1

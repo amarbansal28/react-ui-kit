@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
+import type { KeyboardEvent } from 'react'
+import type { Action } from './types'
 
-export function ActionMenu({ actions, row, rowIndex }) {
+export interface ActionMenuProps<Row = any> {
+  actions: Action<Row>[]
+  row: Row
+  rowIndex: number
+}
+
+export function ActionMenu<Row>({ actions, row, rowIndex }: ActionMenuProps<Row>) {
   const [open, setOpen] = useState(false)
-  const menuRef = useRef(null)
-  const triggerRef = useRef(null)
-  const itemRefs = useRef([])
+  const menuRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([])
 
   const visibleActions = actions.filter((action) => !action.hidden?.(row))
 
@@ -15,8 +23,8 @@ export function ActionMenu({ actions, row, rowIndex }) {
 
   useEffect(() => {
     if (!open) return undefined
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+    const handleClickOutside = (event: globalThis.MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setOpen(false)
       }
     }
@@ -30,12 +38,12 @@ export function ActionMenu({ actions, row, rowIndex }) {
 
   if (!visibleActions.length) return null
 
-  const focusItem = (index) => {
+  const focusItem = (index: number) => {
     const item = itemRefs.current[index]
     item?.focus()
   }
 
-  const handleMenuKeyDown = (event) => {
+  const handleMenuKeyDown = (event: KeyboardEvent<HTMLUListElement>) => {
     const currentIndex = itemRefs.current.findIndex((el) => el === document.activeElement)
     if (event.key === 'Escape') {
       event.preventDefault()
@@ -73,7 +81,7 @@ export function ActionMenu({ actions, row, rowIndex }) {
       {open && (
         <ul className="table-action-menu-list" role="menu" onKeyDown={handleMenuKeyDown}>
           {visibleActions.map((action, index) => (
-            <li key={action.key ?? action.label} role="none">
+            <li key={action.key ?? index} role="none">
               <button
                 ref={(el) => {
                   itemRefs.current[index] = el

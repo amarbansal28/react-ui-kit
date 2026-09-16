@@ -1,15 +1,17 @@
 import { resolve } from 'node:path'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
 
-// Library build: bundles src/index.js into ESM + CJS, with react/react-dom
+// Library build: bundles src/index.ts into ESM + CJS, with react/react-dom
 // left external (consumers provide their own). CSS is emitted as a single
-// dist/react-ui-kit.css that consumers import separately.
+// dist/react-ui-kit.css that consumers import separately. Type declarations
+// are emitted alongside via tsconfig.build.json (src/**/*.d.ts -> dist/).
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), dts({ tsconfigPath: 'tsconfig.build.json' })],
   build: {
     lib: {
-      entry: resolve(import.meta.dirname, 'src/index.js'),
+      entry: resolve(import.meta.dirname, 'src/index.ts'),
       name: 'ReactUiKit',
       fileName: (format) => `react-ui-kit.${format === 'es' ? 'mjs' : 'cjs'}`,
       formats: ['es', 'cjs'],

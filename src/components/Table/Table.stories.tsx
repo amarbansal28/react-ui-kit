@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import type { Meta, StoryObj } from '@storybook/react'
 import { Table } from './Table'
 import { makeRows, sampleColumns, orderColumns } from './Table.fixtures'
+import type { Order, UserRow } from './Table.fixtures'
 
 const ALL_ROWS = makeRows(87)
 
-const STATUS_STYLES = {
+const STATUS_STYLES: Record<string, { background: string; color: string }> = {
   Active: { background: '#1f4d2e', color: '#7CFC00' },
   Pending: { background: '#4d3d1f', color: '#ffd27c' },
   Inactive: { background: '#4d1f1f', color: '#ff8c8c' },
@@ -14,23 +16,23 @@ const columnsWithStatusBadge = sampleColumns.map((column) =>
   column.key === 'status'
     ? {
         ...column,
-        render: (value) => (
+        render: (value: unknown) => (
           <span
             style={{
               padding: '2px 8px',
               borderRadius: 999,
               fontSize: '0.75rem',
-              ...STATUS_STYLES[value],
+              ...STATUS_STYLES[value as string],
             }}
           >
-            {value}
+            {value as string}
           </span>
         ),
       }
     : column,
 )
 
-export default {
+const meta: Meta<typeof Table<UserRow>> = {
   title: 'Components/Table',
   component: Table,
   parameters: { layout: 'padded' },
@@ -46,16 +48,20 @@ export default {
   },
 }
 
-export const Default = {}
+export default meta
 
-export const WithSearchAndFilters = {
+type Story = StoryObj<typeof Table<UserRow>>
+
+export const Default: Story = {}
+
+export const WithSearchAndFilters: Story = {
   args: {
     search: { visible: true, placeholder: 'Search name or email…' },
     filters: { visible: true },
   },
 }
 
-export const WithRowActions = {
+export const WithRowActions: Story = {
   args: {
     actions: [
       { key: 'edit', label: 'Edit', onClick: (row) => alert(`Edit ${row.name}`) },
@@ -64,7 +70,7 @@ export const WithRowActions = {
   },
 }
 
-export const CustomPagination = {
+export const CustomPagination: Story = {
   args: {
     pagination: {
       visible: true,
@@ -76,14 +82,14 @@ export const CustomPagination = {
   },
 }
 
-export const NoPagination = {
+export const NoPagination: Story = {
   args: {
     data: ALL_ROWS.slice(0, 8),
     pagination: { visible: false },
   },
 }
 
-function LazyLoadStory(args) {
+function LazyLoadStory(args: React.ComponentProps<typeof Table<UserRow>>) {
   const PAGE = 15
   const [rows, setRows] = useState(ALL_ROWS.slice(0, PAGE))
   const [loading, setLoading] = useState(false)
@@ -107,7 +113,7 @@ function LazyLoadStory(args) {
   )
 }
 
-export const LazyLoad = {
+export const LazyLoad: Story = {
   render: (args) => <LazyLoadStory {...args} />,
   args: {
     pagination: { visible: true },
@@ -116,7 +122,7 @@ export const LazyLoad = {
   },
 }
 
-export const AccordionExpandableRows = {
+export const AccordionExpandableRows: Story = {
   name: 'Expandable rows — accordion',
   args: {
     columns: columnsWithStatusBadge.slice(0, 4),
@@ -130,7 +136,7 @@ export const AccordionExpandableRows = {
   },
 }
 
-export const ChildTableExpandableRows = {
+export const ChildTableExpandableRows: Story = {
   name: 'Expandable rows — nested child table',
   render: (args) => (
     <Table
@@ -139,7 +145,7 @@ export const ChildTableExpandableRows = {
         multiple: true,
         isExpandable: (row) => row.orders.length > 0,
         render: (row) => (
-          <Table
+          <Table<Order>
             theme={args.theme}
             columns={orderColumns}
             data={row.orders}
@@ -161,7 +167,7 @@ export const ChildTableExpandableRows = {
   },
 }
 
-export const DarkTheme = {
+export const DarkTheme: Story = {
   args: {
     theme: 'dark',
     actions: [{ key: 'edit', label: 'Edit', onClick: (row) => alert(`Edit ${row.name}`) }],
@@ -169,14 +175,14 @@ export const DarkTheme = {
   parameters: { backgrounds: { default: 'dark' } },
 }
 
-export const EmptyState = {
+export const EmptyState: Story = {
   args: {
     data: [],
     emptyMessage: 'No users match your search.',
   },
 }
 
-export const WithCaption = {
+export const WithCaption: Story = {
   args: {
     caption: 'Registered users and their account status',
   },

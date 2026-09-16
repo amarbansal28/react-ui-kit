@@ -41,7 +41,7 @@ export function TableFooter() {
     )
   }
 
-  if (!pagination?.visible) return null
+  if (!pagination.visible) return null
 
   return (
     <tfoot className="table-footer">

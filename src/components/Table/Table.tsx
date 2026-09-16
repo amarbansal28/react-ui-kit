@@ -6,6 +6,7 @@ import { TableRowData } from './TableRowData'
 import { TableFooter } from './TableFooter'
 import { TableToolbar } from './TableToolbar'
 import { useTableData } from './useTableData'
+import type { TableContextValue, TableProps } from './types'
 import './table.css'
 
 /**
@@ -13,7 +14,7 @@ import './table.css'
  * lazy-load, a configurable action-menu column, and expandable rows
  * (accordion detail or nested child tables). Full prop reference: README.md.
  */
-export function Table({
+function TableInner<Row>({
   columns,
   data,
   mode = 'pagination',
@@ -43,7 +44,7 @@ export function Table({
   expandable,
 
   className = '',
-}) {
+}: TableProps<Row>) {
   const searchConfig = useMemo(() => ({ visible: true, placeholder: 'Search…', ...search }), [search])
   const filterConfig = useMemo(() => ({ visible: true, ...filters }), [filters])
   const paginationConfig = useMemo(
@@ -74,14 +75,14 @@ export function Table({
   )
   const hasExpandColumn = Boolean(expandableConfig?.visible)
 
-  const [expandedRowIds, setExpandedRowIds] = useState(() => new Set())
+  const [expandedRowIds, setExpandedRowIds] = useState(() => new Set<string | number>())
 
-  const isRowExpanded = useCallback((rowId) => expandedRowIds.has(rowId), [expandedRowIds])
+  const isRowExpanded = useCallback((rowId: string | number) => expandedRowIds.has(rowId), [expandedRowIds])
 
   const toggleRowExpanded = useCallback(
-    (rowId) => {
+    (rowId: string | number) => {
       setExpandedRowIds((prev) => {
-        const next = expandableConfig.multiple ? new Set(prev) : new Set()
+        const next = expandableConfig!.multiple ? new Set(prev) : new Set<string | number>()
         if (prev.has(rowId)) next.delete(rowId)
         else next.add(rowId)
         return next
@@ -103,7 +104,7 @@ export function Table({
   const rows = mode === 'lazy' ? data : tableData.rows
   const hasActionColumn = actions.length > 0
 
-  const contextValue = useMemo(
+  const contextValue = useMemo<TableContextValue<Row>>(
     () => ({
       columns,
       actions,
@@ -186,6 +187,17 @@ export function Table({
     </TableContext.Provider>
   )
 }
+
+interface TableComponent {
+  <Row>(props: TableProps<Row>): ReturnType<typeof TableInner>
+  Header: typeof TableHeader
+  Row: typeof TableRow
+  RowData: typeof TableRowData
+  Footer: typeof TableFooter
+  Toolbar: typeof TableToolbar
+}
+
+export const Table = TableInner as TableComponent
 
 Table.Header = TableHeader
 Table.Row = TableRow

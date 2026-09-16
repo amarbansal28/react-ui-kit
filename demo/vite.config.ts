@@ -9,7 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       'react-ui-kit/style.css': resolve(import.meta.dirname, '../src/components/Table/table.css'),
-      'react-ui-kit': resolve(import.meta.dirname, '../src/index.js'),
+      'react-ui-kit': resolve(import.meta.dirname, '../src/index.ts'),
     },
   },
 })

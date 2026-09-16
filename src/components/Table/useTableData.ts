@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react'
+import type { Column, Filters, Sort, TableMode, TableState } from './types'
 
-function getValue(row, column) {
+function getValue<Row>(row: Row, column: Column<Row>): unknown {
   if (typeof column.accessor === 'function') return column.accessor(row)
-  return row[column.accessor ?? column.key]
+  const key = (column.accessor ?? column.key) as keyof Row
+  return row[key]
 }
 
-function defaultSort(a, b) {
+function defaultSort(a: unknown, b: unknown): number {
   if (a == null && b == null) return 0
   if (a == null) return -1
   if (b == null) return 1
@@ -13,27 +15,35 @@ function defaultSort(a, b) {
   return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' })
 }
 
+export interface UseTableDataArgs<Row> {
+  data: Row[]
+  columns: Column<Row>[]
+  mode: TableMode
+  initialPageSize?: number
+  onStateChange?: (state: TableState) => void
+}
+
 /**
  * Drives sort/filter/search/pagination state for the table.
  * In lazy mode, filtering/sorting/pagination are assumed to already be
  * applied to `data` by the caller, so this hook just passes state through.
  */
-export function useTableData({ data, columns, mode, initialPageSize, onStateChange }) {
-  const [sort, setSort] = useState(null) // { key, direction: 'asc' | 'desc' }
+export function useTableData<Row>({ data, columns, mode, initialPageSize, onStateChange }: UseTableDataArgs<Row>) {
+  const [sort, setSort] = useState<Sort | null>(null)
   const [search, setSearch] = useState('')
-  const [filters, setFilters] = useState({}) // { [columnKey]: value }
+  const [filters, setFilters] = useState<Filters>({})
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(initialPageSize ?? 10)
 
   const isLazy = mode === 'lazy'
 
-  const notify = (next) => {
+  const notify = (next: Partial<TableState>) => {
     onStateChange?.({ sort, search, filters, page, pageSize, ...next })
   }
 
-  const toggleSort = (key) => {
+  const toggleSort = (key: string) => {
     setSort((prev) => {
-      let next
+      let next: Sort | null
       if (!prev || prev.key !== key) next = { key, direction: 'asc' }
       else if (prev.direction === 'asc') next = { key, direction: 'desc' }
       else next = null
@@ -43,13 +53,13 @@ export function useTableData({ data, columns, mode, initialPageSize, onStateChan
     if (isLazy) setPage(1)
   }
 
-  const updateSearch = (value) => {
+  const updateSearch = (value: string) => {
     setSearch(value)
     setPage(1)
     notify({ search: value, page: 1 })
   }
 
-  const updateFilter = (key, value) => {
+  const updateFilter = (key: string, value: unknown) => {
     setFilters((prev) => {
       const next = { ...prev, [key]: value }
       if (value === '' || value == null) delete next[key]
@@ -65,12 +75,12 @@ export function useTableData({ data, columns, mode, initialPageSize, onStateChan
     notify({ filters: {}, page: 1 })
   }
 
-  const goToPage = (nextPage) => {
+  const goToPage = (nextPage: number) => {
     setPage(nextPage)
     notify({ page: nextPage })
   }
 
-  const updatePageSize = (size) => {
+  const updatePageSize = (size: number) => {
     setPageSize(size)
     setPage(1)
     notify({ pageSize: size, page: 1 })
@@ -97,7 +107,7 @@ export function useTableData({ data, columns, mode, initialPageSize, onStateChan
       rows = rows.filter((row) =>
         activeFilterKeys.every((key) => {
           const column = columns.find((c) => (c.key ?? c.accessor) === key)
-          const value = column ? getValue(row, column) : row[key]
+          const value = column ? getValue(row, column) : (row as Record<string, unknown>)[key]
           const filterValue = filters[key]
           if (typeof filterValue === 'function') return filterValue(value, row)
           return String(value ?? '').toLowerCase() === String(filterValue).toLowerCase()
@@ -109,7 +119,7 @@ export function useTableData({ data, columns, mode, initialPageSize, onStateChan
       const column = columns.find((c) => (c.key ?? c.accessor) === sort.key)
       const compare = column?.sortFn ?? defaultSort
       rows = [...rows].sort((a, b) => {
-        const result = compare(getValue(a, column), getValue(b, column), a, b)
+        const result = compare(getValue(a, column!), getValue(b, column!), a, b)
         return sort.direction === 'asc' ? result : -result
       })
     }

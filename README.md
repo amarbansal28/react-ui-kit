@@ -178,49 +178,51 @@ Verified with automated `axe-core` checks (via Storybook's `@storybook/addon-a11
 
 ## Storybook
 
-Every story lives next to its component (`Table.stories.jsx`) and doubles as living documentation plus a visual/interaction testbed. The `@storybook/addon-a11y` addon runs `axe-core` against each story automatically (see the "Accessibility" tab in the Storybook UI).
+Every story lives next to its component (`Table.stories.tsx`) and doubles as living documentation plus a visual/interaction testbed. The `@storybook/addon-a11y` addon runs `axe-core` against each story automatically (see the "Accessibility" tab in the Storybook UI).
 
 ```bash
 npm run storybook         # http://localhost:6006
 npm run build-storybook   # static build to storybook-static/
 ```
 
-Stories cover: default rendering, search/filters, row actions, custom/no pagination, lazy-load, both expandable-row modes (accordion and nested child table), dark theme, empty state, and a captioned table. Add a new story by dropping a `<Component>.stories.jsx` next to any component under `src/components/`.
+Stories cover: default rendering, search/filters, row actions, custom/no pagination, lazy-load, both expandable-row modes (accordion and nested child table), dark theme, empty state, and a captioned table. Add a new story by dropping a `<Component>.stories.tsx` next to any component under `src/components/`.
 
 ## Development
 
-This repo builds the library from `src/` and includes a `demo/` Vite app (aliased to the local source) for interactive testing.
+This repo builds the library from `src/` and includes a `demo/` Vite app (aliased to the local source) for interactive testing. The whole codebase — library, demo, and Storybook config — is TypeScript; the build emits `.d.ts` declarations to `dist/` alongside the JS bundles.
 
 ```
 src/
-  index.js                 # package entry — re-exports every component
+  index.ts                  # package entry — re-exports every component
   components/
     Table/                 # one folder per component
-      Table.jsx
-      TableHeader.jsx
-      TableRow.jsx
-      TableRowData.jsx
-      TableFooter.jsx
-      TableToolbar.jsx
-      Pagination.jsx
-      ActionMenu.jsx
-      TableContext.jsx
-      useTableData.js
+      Table.tsx
+      TableHeader.tsx
+      TableRow.tsx
+      TableRowData.tsx
+      TableFooter.tsx
+      TableToolbar.tsx
+      Pagination.tsx
+      ActionMenu.tsx
+      TableContext.tsx
+      useTableData.ts
+      types.ts              # shared prop/column/context types
       table.css
-      Table.fixtures.js     # shared sample data/columns for stories
-      Table.stories.jsx     # Storybook stories
-      index.js              # component-level barrel export
+      Table.fixtures.ts     # shared sample data/columns for stories
+      Table.stories.tsx     # Storybook stories
+      index.ts              # component-level barrel export
 demo/                        # Vite app for local dev/preview, not published
-.storybook/                  # Storybook config (main.js, preview.js)
+.storybook/                  # Storybook config (main.ts, preview.ts)
 ```
 
 ```bash
 npm install
 npm run dev               # demo app with HMR against local src/
-npm run build              # builds the publishable library to dist/
+npm run build              # builds the publishable library + .d.ts to dist/
+npm run typecheck           # tsc --noEmit across src/ and demo/src/
 npm run lint                # oxlint across src/ and demo/src/
 npm run storybook           # Storybook dev server at :6006
 npm run build-storybook    # static Storybook build
 ```
 
-Adding a new component: create `src/components/<Name>/` with its own files, barrel export (`index.js`), CSS, and a `<Name>.stories.jsx`; then add `export * from './components/<Name>'` to `src/index.js`.
+Adding a new component: create `src/components/<Name>/` with its own files, barrel export (`index.ts`), CSS, and a `<Name>.stories.tsx`; then add `export * from './components/<Name>'` to `src/index.ts`.

@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Table } from 'react-ui-kit'
+import type { Theme } from 'react-ui-kit'
 import { makeRows, sampleColumns, orderColumns } from '../../src/components/Table/Table.fixtures'
+import type { Order, UserRow } from '../../src/components/Table/Table.fixtures'
 
 const ALL_ROWS = makeRows(87)
 
-const STATUS_STYLES = {
+const STATUS_STYLES: Record<string, { background: string; color: string }> = {
   Active: { background: '#1f4d2e', color: '#7CFC00' },
   Pending: { background: '#4d3d1f', color: '#ffd27c' },
   Inactive: { background: '#4d1f1f', color: '#ff8c8c' },
@@ -14,18 +16,29 @@ const columns = sampleColumns.map((column) =>
   column.key === 'status'
     ? {
         ...column,
-        render: (value) => (
-          <span style={{ padding: '2px 8px', borderRadius: 999, fontSize: '0.75rem', ...STATUS_STYLES[value] }}>
-            {value}
+        render: (value: unknown) => (
+          <span
+            style={{
+              padding: '2px 8px',
+              borderRadius: 999,
+              fontSize: '0.75rem',
+              ...STATUS_STYLES[value as string],
+            }}
+          >
+            {value as string}
           </span>
         ),
       }
     : column,
 )
 
-function TableDemoPagination({ theme }) {
+interface ThemedProps {
+  theme: Theme
+}
+
+function TableDemoPagination({ theme }: ThemedProps) {
   return (
-    <Table
+    <Table<UserRow>
       theme={theme}
       columns={columns}
       data={ALL_ROWS}
@@ -42,7 +55,7 @@ function TableDemoPagination({ theme }) {
   )
 }
 
-function TableDemoLazy({ theme }) {
+function TableDemoLazy({ theme }: ThemedProps) {
   const PAGE = 15
   const [rows, setRows] = useState(ALL_ROWS.slice(0, PAGE))
   const [loading, setLoading] = useState(false)
@@ -55,7 +68,7 @@ function TableDemoLazy({ theme }) {
   }
 
   return (
-    <Table
+    <Table<UserRow>
       theme={theme}
       columns={columns}
       data={rows}
@@ -71,9 +84,9 @@ function TableDemoLazy({ theme }) {
   )
 }
 
-function TableDemoAccordion({ theme }) {
+function TableDemoAccordion({ theme }: ThemedProps) {
   return (
-    <Table
+    <Table<UserRow>
       theme={theme}
       columns={columns.slice(0, 4)}
       data={ALL_ROWS.slice(0, 10)}
@@ -89,9 +102,9 @@ function TableDemoAccordion({ theme }) {
   )
 }
 
-function TableDemoChildTable({ theme }) {
+function TableDemoChildTable({ theme }: ThemedProps) {
   return (
-    <Table
+    <Table<UserRow>
       theme={theme}
       columns={columns.slice(0, 4)}
       data={ALL_ROWS.slice(0, 10)}
@@ -104,7 +117,7 @@ function TableDemoChildTable({ theme }) {
         multiple: true,
         isExpandable: (row) => row.orders.length > 0,
         render: (row) => (
-          <Table
+          <Table<Order>
             theme={theme}
             columns={orderColumns}
             data={row.orders}
@@ -120,11 +133,11 @@ function TableDemoChildTable({ theme }) {
   )
 }
 
-const PAGE_BG = { auto: null, light: '#f4f5fa', dark: '#101018' }
-const PAGE_TEXT = { auto: null, light: '#1a1a29', dark: '#f0f0f0' }
+const PAGE_BG: Record<Theme, string | null> = { auto: null, light: '#f4f5fa', dark: '#101018' }
+const PAGE_TEXT: Record<Theme, string | null> = { auto: null, light: '#1a1a29', dark: '#f0f0f0' }
 
 export default function App() {
-  const [theme, setTheme] = useState('auto')
+  const [theme, setTheme] = useState<Theme>('auto')
 
   return (
     <div
@@ -138,7 +151,7 @@ export default function App() {
       <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <span>Theme:</span>
-          {['auto', 'light', 'dark'].map((t) => (
+          {(['auto', 'light', 'dark'] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTheme(t)}

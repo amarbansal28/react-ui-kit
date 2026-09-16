@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "react-ui-kit": ["../src/index.ts"],
+      "react-ui-kit/style.css": ["../src/components/Table/table.css"]
+    }
+  },
+  "include": ["src", "vite.config.js"]
+}

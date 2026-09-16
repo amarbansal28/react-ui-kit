@@ -1,12 +1,21 @@
+import type { ChangeEvent } from 'react'
 import { useTableContext } from './TableContext'
+import { columnKey } from './types'
+import type { Column } from './types'
 
-function FilterControl({ column, value, onChange }) {
+interface FilterControlProps<Row> {
+  column: Column<Row>
+  value: unknown
+  onChange: (value: string) => void
+}
+
+function FilterControl<Row>({ column, value, onChange }: FilterControlProps<Row>) {
   if (Array.isArray(column.filterOptions)) {
     return (
       <select
         className="table-filter-select"
-        value={value ?? ''}
-        onChange={(e) => onChange(e.target.value)}
+        value={(value as string) ?? ''}
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
         aria-label={`Filter by ${column.header}`}
       >
         <option value="">All {column.header}</option>
@@ -28,8 +37,8 @@ function FilterControl({ column, value, onChange }) {
       type="text"
       className="table-filter-input"
       placeholder={`Filter ${column.header}`}
-      value={value ?? ''}
-      onChange={(e) => onChange(e.target.value)}
+      value={(value as string) ?? ''}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
       aria-label={`Filter by ${column.header}`}
     />
   )
@@ -48,8 +57,8 @@ export function TableToolbar() {
   } = useTableContext()
 
   const filterableColumns = columns.filter((c) => c.filterable)
-  const showSearch = searchConfig?.visible
-  const showFilters = filterConfig?.visible && filterableColumns.length > 0
+  const showSearch = searchConfig.visible
+  const showFilters = filterConfig.visible && filterableColumns.length > 0
   const hasActiveFilters = Object.keys(filters).length > 0
 
   if (!showSearch && !showFilters) return null
@@ -63,7 +72,7 @@ export function TableToolbar() {
             className="table-search-input"
             placeholder={searchConfig.placeholder ?? 'Search…'}
             value={search}
-            onChange={(e) => updateSearch(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => updateSearch(e.target.value)}
             aria-label="Search table"
           />
         </div>
@@ -72,7 +81,7 @@ export function TableToolbar() {
       {showFilters && (
         <div className="table-filters">
           {filterableColumns.map((column) => {
-            const key = column.key ?? column.accessor
+            const key = columnKey(column)
             return (
               <FilterControl
                 key={key}
