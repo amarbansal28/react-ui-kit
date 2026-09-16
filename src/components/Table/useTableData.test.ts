@@ -121,6 +121,25 @@ describe('useTableData', () => {
     expect(result.current.rows.map((r) => r.id)).toEqual([1, 3])
   })
 
+  it('matches any value in an array filter (checkbox-style OR matching)', () => {
+    const { result } = renderHook(() => useTableData({ data: makeRows(), columns, mode: 'pagination' }))
+
+    act(() => result.current.updateFilter('status', ['Active', 'Pending']))
+
+    expect(result.current.rows.map((r) => r.id)).toEqual([1, 3])
+  })
+
+  it('treats an empty array filter as no filter (clears it, like an empty string)', () => {
+    const { result } = renderHook(() => useTableData({ data: makeRows(), columns, mode: 'pagination' }))
+
+    act(() => result.current.updateFilter('status', ['Active']))
+    expect(result.current.total).toBe(2)
+
+    act(() => result.current.updateFilter('status', []))
+    expect(result.current.filters).toEqual({})
+    expect(result.current.total).toBe(3)
+  })
+
   it('paginates rows according to page and pageSize, with -1 meaning "all"', () => {
     const { result } = renderHook(() =>
       useTableData({ data: makeRows(), columns, mode: 'pagination', initialPageSize: 2 }),

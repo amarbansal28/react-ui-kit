@@ -38,6 +38,28 @@ export const WithSearchAndFilters: Story = {
   },
 }
 
+export const RadioFilter: Story = {
+  name: 'Column filters — radio (single select)',
+  args: {
+    search: { visible: false },
+    filters: { visible: true },
+    columns: lightColumns.map((column) =>
+      column.key === 'status' ? { ...column, filterType: 'radio' as const } : column,
+    ),
+  },
+}
+
+export const CheckboxFilter: Story = {
+  name: 'Column filters — checkbox (multi-select, OR match)',
+  args: {
+    search: { visible: false },
+    filters: { visible: true },
+    columns: lightColumns.map((column) =>
+      column.key === 'status' ? { ...column, filterType: 'checkbox' as const } : column,
+    ),
+  },
+}
+
 export const WithRowActions: Story = {
   args: {
     actions: [

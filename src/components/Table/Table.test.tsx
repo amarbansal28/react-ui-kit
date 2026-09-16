@@ -87,6 +87,60 @@ describe('<Table>', () => {
     rows.forEach((row) => expect(within(row).getByText('Inactive')).toBeInTheDocument())
   })
 
+  it('filters rows via a radio-group filter, one value at a time', async () => {
+    const user = userEvent.setup()
+    const radioColumns: Column<Row>[] = [
+      ...columns.filter((c) => c.key !== 'status'),
+      { key: 'status', header: 'Status', accessor: 'status', filterable: true, filterType: 'radio', filterOptions: ['Active', 'Inactive'] },
+    ]
+    render(<Table columns={radioColumns} data={makeRows(4)} getRowId={(r) => r.id} pagination={{ visible: false }} />)
+
+    await user.click(screen.getByRole('radio', { name: 'Inactive' }))
+    expect(bodyRows()).toHaveLength(2)
+
+    await user.click(screen.getByRole('radio', { name: 'All' }))
+    expect(bodyRows()).toHaveLength(4)
+  })
+
+  it('filters rows via a checkbox-group filter, matching any checked value, with object-form options', async () => {
+    const user = userEvent.setup()
+    const statusColumns: Column<Row>[] = [
+      { key: 'id', header: 'ID', accessor: 'id' },
+      { key: 'name', header: 'Name', accessor: 'name' },
+      {
+        key: 'status',
+        header: 'Status',
+        accessor: 'status',
+        filterable: true,
+        filterType: 'checkbox',
+        filterOptions: [
+          { value: 'Active', label: 'Active' },
+          { value: 'Inactive', label: 'Inactive' },
+          { value: 'Pending', label: 'Pending' },
+        ],
+      },
+    ]
+    const rows: Row[] = [
+      { id: 1, name: 'User 1', status: 'Active' },
+      { id: 2, name: 'User 2', status: 'Inactive' },
+      { id: 3, name: 'User 3', status: 'Pending' },
+    ]
+    render(<Table columns={statusColumns} data={rows} getRowId={(r) => r.id} pagination={{ visible: false }} />)
+
+    await user.click(screen.getByRole('checkbox', { name: 'Active' }))
+    expect(bodyRows()).toHaveLength(1)
+
+    await user.click(screen.getByRole('checkbox', { name: 'Pending' }))
+    expect(bodyRows()).toHaveLength(2)
+
+    await user.click(screen.getByRole('checkbox', { name: 'Active' }))
+    expect(bodyRows()).toHaveLength(1)
+    expect(within(bodyRows()[0]).getByText('User 3')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Clear filters' }))
+    expect(bodyRows()).toHaveLength(3)
+  })
+
   it('paginates data and updates the visible page', async () => {
     const user = userEvent.setup()
     render(

@@ -10,6 +10,8 @@ export interface FilterOption {
   label: ReactNode
 }
 
+export type FilterType = 'text' | 'select' | 'radio' | 'checkbox'
+
 export interface Column<Row = any> {
   key?: string
   accessor?: string | ((row: Row) => unknown)
@@ -20,6 +22,12 @@ export interface Column<Row = any> {
   sortFn?: (valueA: unknown, valueB: unknown, rowA: Row, rowB: Row) => number
   searchable?: boolean
   filterable?: boolean
+  /**
+   * Control rendered in the toolbar for this column's filter. Defaults to
+   * `'select'` when `filterOptions` is given, otherwise `'text'`.
+   * `'radio'` and `'checkbox'` also require `filterOptions`.
+   */
+  filterType?: FilterType
   filterOptions?: Array<string | FilterOption>
   render?: (value: unknown, row: Row, rowIndex: number) => ReactNode
 }

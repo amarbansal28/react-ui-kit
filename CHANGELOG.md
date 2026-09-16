@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `Column.filterType`: `'radio'` and `'checkbox'` filter controls, alongside the existing `'text'` and `'select'`. `'checkbox'` supports selecting multiple values, matching a row if its value equals any checked option (OR); `'radio'` behaves like `'select'` (one value at a time) but renders as individual buttons with an "All" option. Both require `filterOptions`, same shape as `'select'`. Two new Storybook stories (`RadioFilter`, `CheckboxFilter`) demonstrate them.
 - Automated visual regression testing via [Lost Pixel](https://www.lost-pixel.com) (`lostpixel.config.ts`, `npm run test:visual` / `test:visual:update`), snapshotting every Storybook story against git-committed baselines under `.lostpixel/baseline/`.
 - Automated accessibility testing via `@axe-core/playwright` (`e2e/accessibility.spec.ts`, `npm run test:a11y`), checking WCAG 2.2 AA rules and a minimum 24×24px interactive target size across the demo app in its default, expanded-rows, action-menu-open, and dark-theme states.
 - End-to-end tests via Playwright (`e2e/table.spec.ts`, `npm run test:e2e`) covering the demo's pagination, lazy-load, accordion/child-table expansion, row actions, and theming.

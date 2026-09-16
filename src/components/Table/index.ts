@@ -13,6 +13,7 @@ export type {
   FilterConfig,
   FilterOption,
   Filters,
+  FilterType,
   PaginationConfig,
   SearchConfig,
   Sort,

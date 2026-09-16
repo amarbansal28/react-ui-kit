@@ -67,7 +67,8 @@ Each entry in `columns` is an object:
 | `sortFn` | `(valueA, valueB, rowA, rowB) => number` | natural string/number compare | Custom comparator, same contract as `Array.prototype.sort`. |
 | `searchable` | `boolean` | `true` | Whether this column's value is checked by the global search box. |
 | `filterable` | `boolean` | `false` | Whether this column gets a filter control in the toolbar. |
-| `filterOptions` | `Array<string \| { value, label }>` | `undefined` | If provided, the filter renders as a `<select>` with these options. If omitted (but `filterable: true`), the filter renders as a free-text input matched case-insensitively. |
+| `filterType` | `'text' \| 'select' \| 'radio' \| 'checkbox'` | `'select'` if `filterOptions` is set, else `'text'` | Which control renders in the toolbar. See [Filter types](#filter-types) below. |
+| `filterOptions` | `Array<string \| { value, label }>` | `undefined` | Options for `'select'`, `'radio'`, and `'checkbox'` filter types. Ignored (and irrelevant) for `'text'`, which is always a free-text input matched case-insensitively. |
 | `render` | `(value, row, rowIndex) => ReactNode` | identity | Custom cell renderer. `value` is whatever `accessor` produced. |
 
 ### Search config
@@ -83,6 +84,33 @@ Set `visible: false` to hide the search box entirely. A column is included in se
 filters={{ visible: true }}
 ```
 Set `visible: false` to hide the whole filter row, even if columns declare `filterable: true`. Only columns with `filterable: true` render a control; a "Clear filters" button appears automatically once any filter is active.
+
+### Filter types
+
+```jsx
+columns={[
+  // Free-text input, matched case-insensitively (the default when filterOptions is omitted)
+  { key: 'name', header: 'Name', accessor: 'name', filterable: true },
+
+  // <select> dropdown — one value at a time (the default when filterOptions is set)
+  { key: 'status', header: 'Status', accessor: 'status', filterable: true, filterOptions: ['Active', 'Inactive'] },
+
+  // Radio group — same one-value-at-a-time behavior as select, rendered as individual buttons
+  { key: 'status', header: 'Status', accessor: 'status', filterable: true, filterType: 'radio', filterOptions: ['Active', 'Inactive', 'Pending'] },
+
+  // Checkbox group — multiple values at once; a row matches if its value equals ANY checked option
+  { key: 'status', header: 'Status', accessor: 'status', filterable: true, filterType: 'checkbox', filterOptions: ['Active', 'Inactive', 'Pending'] },
+]}
+```
+
+| `filterType` | Control | Filter value | Matching |
+| --- | --- | --- | --- |
+| `'text'` (default without `filterOptions`) | Free-text `<input>` | `string` | Substring, case-insensitive. |
+| `'select'` (default with `filterOptions`) | `<select>` | `string` | Exact match, case-insensitive. |
+| `'radio'` | Radio button group (plus an "All" option) | `string` | Exact match, case-insensitive. |
+| `'checkbox'` | Checkbox group | `string[]` | Row matches if its value equals **any** checked option (OR) — unchecking every box clears the filter. |
+
+`'radio'` and `'checkbox'` both require `filterOptions`; each option can be a plain string or `{ value, label }` (same shape as `'select'`'s options). A custom filter value can still be a predicate function (`(value, row) => boolean`) regardless of which control produced it — see [`onStateChange`](#table-props) for reading the current `filters` state, which is a plain object keyed by column.
 
 ### Pagination config
 

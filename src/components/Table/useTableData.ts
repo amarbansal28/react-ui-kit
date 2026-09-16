@@ -62,7 +62,8 @@ export function useTableData<Row>({ data, columns, mode, initialPageSize, onStat
   const updateFilter = (key: string, value: unknown) => {
     setFilters((prev) => {
       const next = { ...prev, [key]: value }
-      if (value === '' || value == null) delete next[key]
+      const isEmpty = value === '' || value == null || (Array.isArray(value) && value.length === 0)
+      if (isEmpty) delete next[key]
       notify({ filters: next, page: 1 })
       return next
     })
@@ -110,6 +111,11 @@ export function useTableData<Row>({ data, columns, mode, initialPageSize, onStat
           const value = column ? getValue(row, column) : (row as Record<string, unknown>)[key]
           const filterValue = filters[key]
           if (typeof filterValue === 'function') return filterValue(value, row)
+          if (Array.isArray(filterValue)) {
+            return filterValue.some(
+              (option) => String(value ?? '').toLowerCase() === String(option).toLowerCase(),
+            )
+          }
           return String(value ?? '').toLowerCase() === String(filterValue).toLowerCase()
         }),
       )

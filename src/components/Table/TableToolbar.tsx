@@ -1,16 +1,27 @@
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 import { useTableContext } from './TableContext'
 import { columnKey } from './types'
-import type { Column } from './types'
+import type { Column, FilterOption, FilterType } from './types'
 
 interface FilterControlProps<Row> {
   column: Column<Row>
   value: unknown
-  onChange: (value: string) => void
+  onChange: (value: unknown) => void
+}
+
+function normalizeOption(option: string | FilterOption): { value: string; label: ReactNode } {
+  return typeof option === 'object' ? option : { value: option, label: option }
+}
+
+function effectiveFilterType<Row>(column: Column<Row>): FilterType {
+  if (column.filterType) return column.filterType
+  return Array.isArray(column.filterOptions) ? 'select' : 'text'
 }
 
 function FilterControl<Row>({ column, value, onChange }: FilterControlProps<Row>) {
-  if (Array.isArray(column.filterOptions)) {
+  const filterType = effectiveFilterType(column)
+
+  if (filterType === 'select') {
     return (
       <select
         className="table-filter-select"
@@ -19,9 +30,8 @@ function FilterControl<Row>({ column, value, onChange }: FilterControlProps<Row>
         aria-label={`Filter by ${column.header}`}
       >
         <option value="">All {column.header}</option>
-        {column.filterOptions.map((option) => {
-          const optValue = typeof option === 'object' ? option.value : option
-          const optLabel = typeof option === 'object' ? option.label : option
+        {(column.filterOptions ?? []).map((option) => {
+          const { value: optValue, label: optLabel } = normalizeOption(option)
           return (
             <option key={optValue} value={optValue}>
               {optLabel}
@@ -29,6 +39,68 @@ function FilterControl<Row>({ column, value, onChange }: FilterControlProps<Row>
           )
         })}
       </select>
+    )
+  }
+
+  if (filterType === 'radio') {
+    const groupName = `table-filter-radio-${columnKey(column)}`
+    return (
+      <fieldset className="table-filter-group">
+        <legend className="table-filter-group-legend">Filter by {column.header}</legend>
+        <label className="table-filter-group-option">
+          <input
+            type="radio"
+            name={groupName}
+            value=""
+            checked={!value}
+            onChange={() => onChange('')}
+          />
+          All
+        </label>
+        {(column.filterOptions ?? []).map((option) => {
+          const { value: optValue, label: optLabel } = normalizeOption(option)
+          return (
+            <label key={optValue} className="table-filter-group-option">
+              <input
+                type="radio"
+                name={groupName}
+                value={optValue}
+                checked={value === optValue}
+                onChange={() => onChange(optValue)}
+              />
+              {optLabel}
+            </label>
+          )
+        })}
+      </fieldset>
+    )
+  }
+
+  if (filterType === 'checkbox') {
+    const selected = Array.isArray(value) ? (value as string[]) : []
+    const toggle = (optValue: string) => {
+      const next = selected.includes(optValue)
+        ? selected.filter((v) => v !== optValue)
+        : [...selected, optValue]
+      onChange(next)
+    }
+    return (
+      <fieldset className="table-filter-group">
+        <legend className="table-filter-group-legend">Filter by {column.header}</legend>
+        {(column.filterOptions ?? []).map((option) => {
+          const { value: optValue, label: optLabel } = normalizeOption(option)
+          return (
+            <label key={optValue} className="table-filter-group-option">
+              <input
+                type="checkbox"
+                checked={selected.includes(optValue)}
+                onChange={() => toggle(optValue)}
+              />
+              {optLabel}
+            </label>
+          )
+        })}
+      </fieldset>
     )
   }
 
