@@ -221,8 +221,10 @@ npm install
 npm run dev               # demo app with HMR against local src/
 npm run build              # builds the publishable library + .d.ts to dist/
 npm run typecheck           # tsc --noEmit across src/ and demo/src/
-npm run test                 # run the test suite once (Vitest)
+npm run test                 # run the unit/component test suite once (Vitest)
 npm run test:watch          # Vitest in watch mode
+npm run test:e2e             # run end-to-end tests against the demo app (Playwright)
+npm run test:e2e:ui         # Playwright's interactive UI mode
 npm run lint                # oxlint across src/ and demo/src/
 npm run storybook           # Storybook dev server at :6006
 npm run build-storybook    # static Storybook build
@@ -236,5 +238,11 @@ Tests use [Vitest](https://vitest.dev) with [`@testing-library/react`](https://t
 - `Table.test.tsx` — full component behavior: rendering, search, sort, filters, pagination, row clicks, row actions, expandable rows, lazy-load.
 - `Pagination.test.tsx` — page-range display, page-number/ellipsis generation, disabled states, page-size changes.
 - `ActionMenu.test.tsx` — menu open/close, keyboard navigation (arrows/Home/End/Escape), outside-click dismissal, disabled/hidden actions.
+
+End-to-end tests use [Playwright](https://playwright.dev), configured in `playwright.config.ts`. `npm run test:e2e` starts the demo app (`npm run dev -- --port 5183`) automatically and drives it in a real headless Chromium browser; specs live under `e2e/`:
+
+- `e2e/table.spec.ts` — covers the demo's four table instances end to end: pagination search/sort/filter/page-size/next-page, the row action menu (including the native `alert()` dialog it triggers), lazy-load's "Load more" through to "All rows loaded", accordion vs. independent row expansion, nested child tables, and light/dark theme switching. Also fails any test whose page logs a browser console error.
+
+Playwright downloads its own Chromium binary on first run (`npx playwright install chromium` if it's not already cached).
 
 Adding a new component: create `src/components/<Name>/` with its own files, barrel export (`index.ts`), CSS, and a `<Name>.stories.tsx`; then add `export * from './components/<Name>'` to `src/index.ts`.
