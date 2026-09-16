@@ -232,6 +232,8 @@ npm run test:watch          # Vitest in watch mode
 npm run test:e2e             # run end-to-end tests against the demo app (Playwright)
 npm run test:e2e:ui         # Playwright's interactive UI mode
 npm run test:a11y            # run just the axe-core/WCAG 2.2 AA checks (subset of test:e2e)
+npm run test:visual          # build Storybook and check for visual regressions (Lost Pixel)
+npm run test:visual:update  # same, then overwrite baselines with the new screenshots
 npm run lint                # oxlint across src/ and demo/src/
 npm run storybook           # Storybook dev server at :6006
 npm run build-storybook    # static Storybook build
@@ -252,5 +254,13 @@ End-to-end tests use [Playwright](https://playwright.dev), configured in `playwr
 - `e2e/accessibility.spec.ts` — runs `@axe-core/playwright` (`wcag2a`/`wcag2aa`/`wcag21a`/`wcag21aa`/`wcag22aa` rules) against the demo in its default state, with every expandable row open, with the row action menu open, and in dark theme, plus an explicit 24×24px minimum target-size check on every interactive control. See [Accessibility](#accessibility) above.
 
 Playwright downloads its own Chromium binary on first run (`npx playwright install chromium` if it's not already cached).
+
+Visual regression testing uses [Lost Pixel](https://www.lost-pixel.com) in its open-source, git-baseline mode (`lostpixel.config.ts`, `generateOnly: true` — no Lost Pixel Platform account or API key needed). It screenshots every `Table.stories.tsx` story from the built Storybook and pixel-diffs each one against a baseline:
+
+- `npm run test:visual` — builds Storybook and runs Lost Pixel. Screenshots land in `.lostpixel/current/`, diffs (if any) in `.lostpixel/difference/`, both gitignored. Exits non-zero if any story differs from its baseline (`failOnDifference: true`).
+- `npm run test:visual:update` — same, then copies the fresh screenshots over `.lostpixel/baseline/` — run this and commit the result whenever a story's appearance intentionally changes.
+- `.lostpixel/baseline/*.png` **is committed** to the repo; that's the source of truth diffs are checked against.
+- Lost Pixel bundles its own pinned Playwright/Chromium build, separate from the one `@playwright/test` uses for `e2e/`; if its first run errors with a missing-executable message, install it once via `node node_modules/lost-pixel/node_modules/playwright-core/cli.js install chromium`.
+- Story fixtures (`Table.fixtures.ts`) are intentionally deterministic (no `Math.random()`) — any randomness there would make every run "diff" against the baseline even with no real change.
 
 Adding a new component: create `src/components/<Name>/` with its own files, barrel export (`index.ts`), CSS, and a `<Name>.stories.tsx`; then add `export * from './components/<Name>'` to `src/index.ts`.

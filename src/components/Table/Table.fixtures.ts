@@ -29,7 +29,7 @@ export function makeRows(count: number): UserRow[] {
     email: `user${i + 1}@example.com`,
     status: STATUS_OPTIONS[i % STATUS_OPTIONS.length],
     signupDate: new Date(2024, i % 12, (i % 28) + 1).toISOString().slice(0, 10),
-    score: Math.round(Math.random() * 1000),
+    score: (i * 137 + 29) % 1000,
     bio: `User ${i + 1} has been a member since ${new Date(2024, i % 12, (i % 28) + 1)
       .toISOString()
       .slice(0, 10)} and has placed ${(i % 5) + 1} orders so far.`,
