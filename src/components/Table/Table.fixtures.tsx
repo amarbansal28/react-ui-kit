@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { Column } from './types'
 
 // Shared sample data/columns used by Table.stories.tsx (and available for
@@ -40,6 +41,60 @@ export function makeRows(count: number): UserRow[] {
       total: Math.round((j + 1) * 24.5 * 100) / 100,
     })),
   }))
+}
+
+interface BadgeStyle {
+  background: string
+  color: string
+}
+
+// Two palettes so consumers of this fixture (Storybook stories, the demo app)
+// can render a status badge that's legible against both a light and a dark
+// table surface — each story picks one fixed palette, while the demo's live
+// theme toggle picks between them based on the currently active theme.
+export const STATUS_BADGE_COLORS: { light: Record<string, BadgeStyle>; dark: Record<string, BadgeStyle> } = {
+  light: {
+    Active: { background: '#dcf3df', color: '#15662a' },
+    Pending: { background: '#fbedd0', color: '#8a5a06' },
+    Inactive: { background: '#fbdcdf', color: '#9c1f30' },
+  },
+  dark: {
+    Active: { background: '#1f4d2e', color: '#7cfc00' },
+    Pending: { background: '#4d3d1f', color: '#ffd27c' },
+    Inactive: { background: '#4d1f1f', color: '#ff8c8c' },
+  },
+}
+
+/**
+ * Returns `sampleColumns` with the `status` column's `render` swapped for a
+ * colored badge, using whichever palette matches `mode`. Shared by
+ * Table.stories.tsx (each story picks a fixed mode) and the demo app (which
+ * re-derives this on every theme change).
+ */
+export function withStatusBadge(columns: Column<UserRow>[], mode: 'light' | 'dark'): Column<UserRow>[] {
+  const palette = STATUS_BADGE_COLORS[mode]
+  return columns.map((column) =>
+    column.key === 'status'
+      ? {
+          ...column,
+          render: (value: unknown): ReactNode => {
+            const style = palette[value as string]
+            return (
+              <span
+                style={{
+                  padding: '2px 8px',
+                  borderRadius: 999,
+                  fontSize: '0.75rem',
+                  ...style,
+                }}
+              >
+                {value as string}
+              </span>
+            )
+          },
+        }
+      : column,
+  )
 }
 
 export const sampleColumns: Column<UserRow>[] = [

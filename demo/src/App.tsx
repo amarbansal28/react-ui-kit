@@ -1,42 +1,33 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Table } from '@amarbansal28/react-ui-kit'
 import type { Theme } from '@amarbansal28/react-ui-kit'
-import { makeRows, sampleColumns, orderColumns } from '../../src/components/Table/Table.fixtures'
+import { makeRows, sampleColumns, orderColumns, withStatusBadge } from '../../src/components/Table/Table.fixtures'
 import type { Order, UserRow } from '../../src/components/Table/Table.fixtures'
 
 const ALL_ROWS = makeRows(87)
 
-const STATUS_STYLES: Record<string, { background: string; color: string }> = {
-  Active: { background: '#1f4d2e', color: '#7CFC00' },
-  Pending: { background: '#4d3d1f', color: '#ffd27c' },
-  Inactive: { background: '#4d1f1f', color: '#ff8c8c' },
-}
+/** Resolves 'auto' against the OS/browser preference, tracking live changes. */
+function useEffectiveColorMode(theme: Theme): 'light' | 'dark' {
+  const getPreferred = () => (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  const [preferred, setPreferred] = useState<'light' | 'dark'>(getPreferred)
 
-const columns = sampleColumns.map((column) =>
-  column.key === 'status'
-    ? {
-        ...column,
-        render: (value: unknown) => (
-          <span
-            style={{
-              padding: '2px 8px',
-              borderRadius: 999,
-              fontSize: '0.75rem',
-              ...STATUS_STYLES[value as string],
-            }}
-          >
-            {value as string}
-          </span>
-        ),
-      }
-    : column,
-)
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = () => setPreferred(getPreferred())
+    query.addEventListener('change', handleChange)
+    return () => query.removeEventListener('change', handleChange)
+  }, [])
+
+  return theme === 'auto' ? preferred : theme
+}
 
 interface ThemedProps {
   theme: Theme
 }
 
 function TableDemoPagination({ theme }: ThemedProps) {
+  const columns = withStatusBadge(sampleColumns, useEffectiveColorMode(theme))
+
   return (
     <Table<UserRow>
       theme={theme}
@@ -59,6 +50,7 @@ function TableDemoLazy({ theme }: ThemedProps) {
   const PAGE = 15
   const [rows, setRows] = useState(ALL_ROWS.slice(0, PAGE))
   const [loading, setLoading] = useState(false)
+  const columns = withStatusBadge(sampleColumns, useEffectiveColorMode(theme))
 
   const loadMore = async () => {
     setLoading(true)
@@ -85,6 +77,8 @@ function TableDemoLazy({ theme }: ThemedProps) {
 }
 
 function TableDemoAccordion({ theme }: ThemedProps) {
+  const columns = withStatusBadge(sampleColumns, useEffectiveColorMode(theme))
+
   return (
     <Table<UserRow>
       theme={theme}
@@ -103,6 +97,8 @@ function TableDemoAccordion({ theme }: ThemedProps) {
 }
 
 function TableDemoChildTable({ theme }: ThemedProps) {
+  const columns = withStatusBadge(sampleColumns, useEffectiveColorMode(theme))
+
   return (
     <Table<UserRow>
       theme={theme}

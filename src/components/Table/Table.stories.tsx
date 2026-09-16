@@ -1,36 +1,13 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 import { Table } from './Table'
-import { makeRows, sampleColumns, orderColumns } from './Table.fixtures'
+import { makeRows, sampleColumns, orderColumns, withStatusBadge } from './Table.fixtures'
 import type { Order, UserRow } from './Table.fixtures'
 
 const ALL_ROWS = makeRows(87)
 
-const STATUS_STYLES: Record<string, { background: string; color: string }> = {
-  Active: { background: '#1f4d2e', color: '#7CFC00' },
-  Pending: { background: '#4d3d1f', color: '#ffd27c' },
-  Inactive: { background: '#4d1f1f', color: '#ff8c8c' },
-}
-
-const columnsWithStatusBadge = sampleColumns.map((column) =>
-  column.key === 'status'
-    ? {
-        ...column,
-        render: (value: unknown) => (
-          <span
-            style={{
-              padding: '2px 8px',
-              borderRadius: 999,
-              fontSize: '0.75rem',
-              ...STATUS_STYLES[value as string],
-            }}
-          >
-            {value as string}
-          </span>
-        ),
-      }
-    : column,
-)
+const lightColumns = withStatusBadge(sampleColumns, 'light')
+const darkColumns = withStatusBadge(sampleColumns, 'dark')
 
 const meta: Meta<typeof Table<UserRow>> = {
   title: 'Components/Table',
@@ -41,7 +18,7 @@ const meta: Meta<typeof Table<UserRow>> = {
     mode: { control: 'select', options: ['pagination', 'lazy'] },
   },
   args: {
-    columns: columnsWithStatusBadge,
+    columns: lightColumns,
     data: ALL_ROWS,
     getRowId: (row) => row.id,
     theme: 'auto',
@@ -125,7 +102,7 @@ export const LazyLoad: Story = {
 export const AccordionExpandableRows: Story = {
   name: 'Expandable rows — accordion',
   args: {
-    columns: columnsWithStatusBadge.slice(0, 4),
+    columns: lightColumns.slice(0, 4),
     data: ALL_ROWS.slice(0, 10),
     search: { visible: false },
     filters: { visible: false },
@@ -159,7 +136,7 @@ export const ChildTableExpandableRows: Story = {
     />
   ),
   args: {
-    columns: columnsWithStatusBadge.slice(0, 4),
+    columns: lightColumns.slice(0, 4),
     data: ALL_ROWS.slice(0, 10),
     search: { visible: false },
     filters: { visible: false },
@@ -170,6 +147,7 @@ export const ChildTableExpandableRows: Story = {
 export const DarkTheme: Story = {
   args: {
     theme: 'dark',
+    columns: darkColumns,
     actions: [{ key: 'edit', label: 'Edit', onClick: (row) => alert(`Edit ${row.name}`) }],
   },
   parameters: { backgrounds: { default: 'dark' } },

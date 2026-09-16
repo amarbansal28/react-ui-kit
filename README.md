@@ -216,7 +216,7 @@ src/
       useTableData.ts
       types.ts              # shared prop/column/context types
       table.css
-      Table.fixtures.ts     # shared sample data/columns for stories
+      Table.fixtures.tsx    # shared sample data/columns/badge styling for stories & demo
       Table.stories.tsx     # Storybook stories
       *.test.ts(x)          # unit/component tests, next to the code they cover
       index.ts              # component-level barrel export
@@ -267,6 +267,6 @@ Visual regression testing uses [Lost Pixel](https://www.lost-pixel.com) in its o
 - `npm run test:visual:update` — same, then copies the fresh screenshots over `.lostpixel/baseline/` — run this and commit the result whenever a story's appearance intentionally changes.
 - `.lostpixel/baseline/*.png` **is committed** to the repo; that's the source of truth diffs are checked against.
 - Lost Pixel bundles its own pinned Playwright/Chromium build, separate from the one `@playwright/test` uses for `e2e/`; if its first run errors with a missing-executable message, install it once via `node node_modules/lost-pixel/node_modules/playwright-core/cli.js install chromium`.
-- Story fixtures (`Table.fixtures.ts`) are intentionally deterministic (no `Math.random()`) — any randomness there would make every run "diff" against the baseline even with no real change.
+- Story fixtures (`Table.fixtures.tsx`) are intentionally deterministic (no `Math.random()`) — any randomness there would make every run "diff" against the baseline even with no real change.
 
 Adding a new component: create `src/components/<Name>/` with its own files, barrel export (`index.ts`), CSS, and a `<Name>.stories.tsx`; then add `export * from './components/<Name>'` to `src/index.ts`.
