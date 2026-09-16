@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Table } from 'react-ui-kit'
-import type { Theme } from 'react-ui-kit'
+import { Table } from '@amarbansal28/react-ui-kit'
+import type { Theme } from '@amarbansal28/react-ui-kit'
 import { makeRows, sampleColumns, orderColumns } from '../../src/components/Table/Table.fixtures'
 import type { Order, UserRow } from '../../src/components/Table/Table.fixtures'
 

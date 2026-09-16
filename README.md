@@ -5,7 +5,7 @@ A responsive, reusable React component library. It currently ships one component
 ## Install
 
 ```bash
-npm install react-ui-kit
+npm install @amarbansal28/react-ui-kit
 ```
 
 `react` and `react-dom` (18 or 19) are peer dependencies.
@@ -13,8 +13,8 @@ npm install react-ui-kit
 ## Quick start
 
 ```jsx
-import { Table } from 'react-ui-kit'
-import 'react-ui-kit/style.css'
+import { Table } from '@amarbansal28/react-ui-kit'
+import '@amarbansal28/react-ui-kit/style.css'
 
 const columns = [
   { key: 'name', header: 'Name', accessor: 'name', sortable: true, searchable: true },
@@ -197,6 +197,8 @@ Stories cover: default rendering, search/filters, row actions, custom/no paginat
 
 This repo builds the library from `src/` and includes a `demo/` Vite app (aliased to the local source) for interactive testing. The whole codebase — library, demo, and Storybook config — is TypeScript; the build emits `.d.ts` declarations to `dist/` alongside the JS bundles.
 
+A Husky pre-commit hook (`.husky/pre-commit`) runs `lint-staged` (oxlint on staged `.ts`/`.tsx` files), `npm run typecheck`, and `npm test` before every commit — it runs automatically once you `npm install` (via the `prepare` script).
+
 ```
 src/
   index.ts                  # package entry — re-exports every component
@@ -229,6 +231,7 @@ npm run build              # builds the publishable library + .d.ts to dist/
 npm run typecheck           # tsc --noEmit across src/ and demo/src/
 npm run test                 # run the unit/component test suite once (Vitest)
 npm run test:watch          # Vitest in watch mode
+npm run test:coverage       # unit tests with coverage report + enforced thresholds
 npm run test:e2e             # run end-to-end tests against the demo app (Playwright)
 npm run test:e2e:ui         # Playwright's interactive UI mode
 npm run test:a11y            # run just the axe-core/WCAG 2.2 AA checks (subset of test:e2e)
@@ -247,6 +250,9 @@ Tests use [Vitest](https://vitest.dev) with [`@testing-library/react`](https://t
 - `Table.test.tsx` — full component behavior: rendering, search, sort, filters, pagination, row clicks, row actions, expandable rows, lazy-load.
 - `Pagination.test.tsx` — page-range display, page-number/ellipsis generation, disabled states, page-size changes.
 - `ActionMenu.test.tsx` — menu open/close, keyboard navigation (arrows/Home/End/Escape), outside-click dismissal, disabled/hidden actions.
+- `TableContext.test.tsx` — the compound-component guard rail (`useTableContext` throws when used outside a `<Table>`).
+
+`npm run test:coverage` enforces minimum thresholds (95% statements/lines/functions, 80% branches — see `vitest.config.ts`) over `src/**/*.{ts,tsx}`, excluding stories, fixtures, type-only files, and the package entry point.
 
 End-to-end tests use [Playwright](https://playwright.dev), configured in `playwright.config.ts`. `npm run test:e2e` starts the demo app (`npm run dev -- --port 5183`) automatically and drives it in a real headless Chromium browser; specs live under `e2e/`:
 

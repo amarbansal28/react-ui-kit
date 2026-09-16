@@ -96,4 +96,37 @@ describe('<Pagination>', () => {
     expect(screen.getByText('1–57 of 57')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Next page' })).toBeDisabled()
   })
+
+  it('calls onPageChange(1) and onPageChange(previous) from the first/previous buttons', async () => {
+    const user = userEvent.setup()
+    const onPageChange = vi.fn()
+    render(
+      <Pagination page={5} pageSize={10} total={100} onPageChange={onPageChange} onPageSizeChange={vi.fn()} />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Previous page' }))
+    expect(onPageChange).toHaveBeenCalledWith(4)
+
+    await user.click(screen.getByRole('button', { name: 'First page' }))
+    expect(onPageChange).toHaveBeenCalledWith(1)
+  })
+
+  it('calls onPageChange(last) from the last-page button', async () => {
+    const user = userEvent.setup()
+    const onPageChange = vi.fn()
+    render(
+      <Pagination page={1} pageSize={10} total={95} onPageChange={onPageChange} onPageSizeChange={vi.fn()} />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Last page' }))
+
+    expect(onPageChange).toHaveBeenCalledWith(10)
+  })
+
+  it('clamps a page prop that exceeds the total page count', () => {
+    render(<Pagination page={99} pageSize={10} total={30} onPageChange={vi.fn()} onPageSizeChange={vi.fn()} />)
+
+    expect(screen.getByText('21–30 of 30')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '3' })).toHaveAttribute('aria-current', 'page')
+  })
 })

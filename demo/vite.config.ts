@@ -8,8 +8,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'react-ui-kit/style.css': resolve(import.meta.dirname, '../src/components/Table/table.css'),
-      'react-ui-kit': resolve(import.meta.dirname, '../src/index.ts'),
+      '@amarbansal28/react-ui-kit/style.css': resolve(import.meta.dirname, '../src/components/Table/table.css'),
+      '@amarbansal28/react-ui-kit': resolve(import.meta.dirname, '../src/index.ts'),
     },
   },
 })

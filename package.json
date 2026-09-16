@@ -1,8 +1,10 @@
 {
-  "name": "react-ui-kit",
+  "name": "@amarbansal28/react-ui-kit",
   "version": "0.1.0",
   "description": "A generic React component library. Currently ships Table: a responsive table with sorting, filtering, search, pagination/lazy-load, action menus, and expandable (accordion / nested table) rows.",
   "type": "module",
+  "license": "MIT",
+  "author": "Amar Bansal",
   "main": "./dist/react-ui-kit.cjs",
   "module": "./dist/react-ui-kit.mjs",
   "types": "./dist/index.d.ts",
@@ -30,13 +32,21 @@
     "sorting",
     "filtering"
   ],
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amarbansal28/react-ui-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amarbansal28/react-ui-kit/issues"
+  },
+  "homepage": "https://github.com/amarbansal28/react-ui-kit#readme",
   "scripts": {
     "dev": "cd demo && vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p demo/tsconfig.json && tsc --noEmit -p e2e/tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:a11y": "playwright test e2e/accessibility.spec.ts",
@@ -45,7 +55,13 @@
     "lint": "oxlint",
     "preview:demo": "cd demo && vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "oxlint"
+    ]
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
@@ -65,7 +81,10 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
+    "@vitest/coverage-v8": "^5.0.1",
+    "husky": "^9.1.7",
     "jsdom": "^30.0.1",
+    "lint-staged": "^17.5.1",
     "lost-pixel": "^3.22.0",
     "oxlint": "^1.79.0",
     "react": "^19.2.8",

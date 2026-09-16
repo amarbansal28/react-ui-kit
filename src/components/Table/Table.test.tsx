@@ -116,6 +116,54 @@ describe('<Table>', () => {
     expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 2 }), 1)
   })
 
+  it('activates a clickable row with Enter or Space when it has keyboard focus', async () => {
+    const user = userEvent.setup()
+    const onRowClick = vi.fn()
+    render(<Table columns={columns} data={makeRows(2)} getRowId={(r) => r.id} onRowClick={onRowClick} />)
+
+    bodyRows()[0].focus()
+    await user.keyboard('{Enter}')
+    expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }), 0)
+
+    bodyRows()[1].focus()
+    await user.keyboard(' ')
+    expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 2 }), 1)
+  })
+
+  it('does not activate a clickable row when Enter is pressed on a child element (e.g. inside the action menu)', async () => {
+    const user = userEvent.setup()
+    const onRowClick = vi.fn()
+    render(
+      <Table
+        columns={columns}
+        data={makeRows(1)}
+        getRowId={(r) => r.id}
+        onRowClick={onRowClick}
+        actions={[{ key: 'edit', label: 'Edit', onClick: vi.fn() }]}
+      />,
+    )
+
+    screen.getByRole('button', { name: 'Row actions' }).focus()
+    await user.keyboard('{Enter}')
+
+    expect(onRowClick).not.toHaveBeenCalled()
+  })
+
+  it('toggles sort with Enter or Space when a sort header has keyboard focus', async () => {
+    const user = userEvent.setup()
+    render(<Table columns={columns} data={makeRows(3)} getRowId={(r) => r.id} pagination={{ visible: false }} />)
+
+    const nameHeaderButton = screen.getByRole('button', { name: 'Name' })
+    const nameHeaderCell = nameHeaderButton.closest('th')!
+    nameHeaderButton.focus()
+
+    await user.keyboard('{Enter}')
+    expect(nameHeaderCell).toHaveAttribute('aria-sort', 'ascending')
+
+    await user.keyboard(' ')
+    expect(nameHeaderCell).toHaveAttribute('aria-sort', 'descending')
+  })
+
   it('renders a kebab action menu and invokes the chosen action with the row', async () => {
     const user = userEvent.setup()
     const onEdit = vi.fn()
@@ -196,5 +244,52 @@ describe('<Table>', () => {
 
     expect(screen.getByText('All rows loaded')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument()
+  })
+
+  it('hides the lazy-mode footer entirely when pagination.visible is false', () => {
+    render(
+      <Table
+        columns={columns}
+        data={makeRows(2)}
+        mode="lazy"
+        onLoadMore={vi.fn()}
+        hasMore
+        pagination={{ visible: false }}
+      />,
+    )
+
+    expect(screen.queryByText('All rows loaded')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument()
+  })
+
+  it('renders a free-text filter input for a filterable column without filterOptions', async () => {
+    const user = userEvent.setup()
+    const freeTextColumns: Column<Row>[] = [
+      ...columns.filter((c) => c.key !== 'status'),
+      { key: 'status', header: 'Status', accessor: 'status', filterable: true },
+    ]
+    render(<Table columns={freeTextColumns} data={makeRows(4)} getRowId={(r) => r.id} pagination={{ visible: false }} />)
+
+    await user.type(screen.getByLabelText('Filter by Status'), 'Inactive')
+
+    const rows = bodyRows()
+    expect(rows).toHaveLength(2)
+    rows.forEach((row) => expect(within(row).getByText('Inactive')).toBeInTheDocument())
+  })
+
+  it('derives a cell value from a function accessor and uses column.render when provided', () => {
+    const derivedColumns: Column<Row>[] = [
+      { key: 'id', header: 'ID', accessor: 'id' },
+      {
+        key: 'summary',
+        header: 'Summary',
+        accessor: (row) => `${row.name} (${row.status})`,
+        render: (value) => <strong>{value as string}</strong>,
+      },
+    ]
+    render(<Table columns={derivedColumns} data={makeRows(1)} getRowId={(r) => r.id} />)
+
+    const cell = screen.getByText('User 1 (Active)')
+    expect(cell.tagName).toBe('STRONG')
   })
 })
