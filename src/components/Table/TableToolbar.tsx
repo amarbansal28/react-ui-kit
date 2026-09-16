@@ -1,120 +1,7 @@
-import type { ChangeEvent, ReactNode } from 'react'
+import type { ChangeEvent } from 'react'
 import { useTableContext } from './TableContext'
 import { columnKey } from './types'
-import type { Column, FilterOption, FilterType } from './types'
-
-interface FilterControlProps<Row> {
-  column: Column<Row>
-  value: unknown
-  onChange: (value: unknown) => void
-}
-
-function normalizeOption(option: string | FilterOption): { value: string; label: ReactNode } {
-  return typeof option === 'object' ? option : { value: option, label: option }
-}
-
-function effectiveFilterType<Row>(column: Column<Row>): FilterType {
-  if (column.filterType) return column.filterType
-  return Array.isArray(column.filterOptions) ? 'select' : 'text'
-}
-
-function FilterControl<Row>({ column, value, onChange }: FilterControlProps<Row>) {
-  const filterType = effectiveFilterType(column)
-
-  if (filterType === 'select') {
-    return (
-      <select
-        className="table-filter-select"
-        value={(value as string) ?? ''}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-        aria-label={`Filter by ${column.header}`}
-      >
-        <option value="">All {column.header}</option>
-        {(column.filterOptions ?? []).map((option) => {
-          const { value: optValue, label: optLabel } = normalizeOption(option)
-          return (
-            <option key={optValue} value={optValue}>
-              {optLabel}
-            </option>
-          )
-        })}
-      </select>
-    )
-  }
-
-  if (filterType === 'radio') {
-    const groupName = `table-filter-radio-${columnKey(column)}`
-    return (
-      <fieldset className="table-filter-group">
-        <legend className="table-filter-group-legend">Filter by {column.header}</legend>
-        <label className="table-filter-group-option">
-          <input
-            type="radio"
-            name={groupName}
-            value=""
-            checked={!value}
-            onChange={() => onChange('')}
-          />
-          All
-        </label>
-        {(column.filterOptions ?? []).map((option) => {
-          const { value: optValue, label: optLabel } = normalizeOption(option)
-          return (
-            <label key={optValue} className="table-filter-group-option">
-              <input
-                type="radio"
-                name={groupName}
-                value={optValue}
-                checked={value === optValue}
-                onChange={() => onChange(optValue)}
-              />
-              {optLabel}
-            </label>
-          )
-        })}
-      </fieldset>
-    )
-  }
-
-  if (filterType === 'checkbox') {
-    const selected = Array.isArray(value) ? (value as string[]) : []
-    const toggle = (optValue: string) => {
-      const next = selected.includes(optValue)
-        ? selected.filter((v) => v !== optValue)
-        : [...selected, optValue]
-      onChange(next)
-    }
-    return (
-      <fieldset className="table-filter-group">
-        <legend className="table-filter-group-legend">Filter by {column.header}</legend>
-        {(column.filterOptions ?? []).map((option) => {
-          const { value: optValue, label: optLabel } = normalizeOption(option)
-          return (
-            <label key={optValue} className="table-filter-group-option">
-              <input
-                type="checkbox"
-                checked={selected.includes(optValue)}
-                onChange={() => toggle(optValue)}
-              />
-              {optLabel}
-            </label>
-          )
-        })}
-      </fieldset>
-    )
-  }
-
-  return (
-    <input
-      type="text"
-      className="table-filter-input"
-      placeholder={`Filter ${column.header}`}
-      value={(value as string) ?? ''}
-      onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-      aria-label={`Filter by ${column.header}`}
-    />
-  )
-}
+import { FilterControl } from './FilterControl'
 
 export function TableToolbar() {
   const {
@@ -129,11 +16,15 @@ export function TableToolbar() {
   } = useTableContext()
 
   const filterableColumns = columns.filter((c) => c.filterable)
+  const filtersInToolbar = filterConfig.position === 'toolbar' && filterableColumns.length > 0
   const showSearch = searchConfig.visible
-  const showFilters = filterConfig.visible && filterableColumns.length > 0
+  const showFilters = filterConfig.visible && filtersInToolbar
   const hasActiveFilters = Object.keys(filters).length > 0
+  // When filters render in the header row instead, still surface a way to
+  // clear them from the toolbar — there's no natural place for it otherwise.
+  const showClearFiltersOnly = filterConfig.visible && !filtersInToolbar && hasActiveFilters
 
-  if (!showSearch && !showFilters) return null
+  if (!showSearch && !showFilters && !showClearFiltersOnly) return null
 
   return (
     <div className="table-toolbar">
@@ -169,6 +60,12 @@ export function TableToolbar() {
             </button>
           )}
         </div>
+      )}
+
+      {showClearFiltersOnly && (
+        <button type="button" className="table-filters-clear" onClick={clearFilters}>
+          Clear filters
+        </button>
       )}
     </div>
   )

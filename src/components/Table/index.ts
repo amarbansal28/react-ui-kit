@@ -22,5 +22,6 @@ export type {
   TableMode,
   TableProps,
   TableState,
+  TextDirection,
   Theme,
 } from './types'

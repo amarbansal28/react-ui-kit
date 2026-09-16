@@ -225,6 +225,31 @@
   width: 2.5rem;
 }
 
+/* Per-column filter row (filters.position: 'header') */
+.table-header-filter-row {
+  background: var(--table-header-bg);
+}
+
+.table-header-filter-cell {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--table-border);
+  font-weight: normal;
+  text-transform: none;
+  vertical-align: top;
+}
+
+.table-header-filter-cell .table-filter-select,
+.table-header-filter-cell .table-filter-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.table-header-filter-cell .table-filter-group {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
 /* Body */
 .table-row {
   border-bottom: 1px solid var(--table-border);

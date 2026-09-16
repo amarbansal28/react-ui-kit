@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 export type Align = 'left' | 'center' | 'right'
+export type TextDirection = 'ltr' | 'rtl' | 'auto'
 export type SortDirection = 'asc' | 'desc'
 export type TableMode = 'pagination' | 'lazy'
 export type Theme = 'auto' | 'light' | 'dark'
@@ -18,6 +19,15 @@ export interface Column<Row = any> {
   header: ReactNode
   width?: number | string
   align?: Align
+  /**
+   * Text direction for this column's header and body cells, set as the
+   * native HTML `dir` attribute. `'auto'` lets the browser infer direction
+   * from the content of each cell. Independent of `align`: `dir` controls
+   * reading direction and punctuation placement, not visual alignment — set
+   * `align` explicitly alongside `dir="rtl"` if you also want right-aligned
+   * text (browsers right-align `dir="rtl"` content by default otherwise).
+   */
+  dir?: TextDirection
   sortable?: boolean
   sortFn?: (valueA: unknown, valueB: unknown, rowA: Row, rowB: Row) => number
   searchable?: boolean
@@ -39,6 +49,14 @@ export interface SearchConfig {
 
 export interface FilterConfig {
   visible?: boolean
+  /**
+   * Where per-column filter controls render.
+   * `'toolbar'` (default): all filterable columns' controls grouped in one
+   * row above the table, alongside search.
+   * `'header'`: each filterable column's control sits in its own cell in a
+   * dedicated row directly under the column headers.
+   */
+  position?: 'toolbar' | 'header'
 }
 
 export interface PaginationConfig {

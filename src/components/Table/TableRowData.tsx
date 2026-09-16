@@ -15,6 +15,7 @@ export function TableRowData<Row>({ column, row, rowIndex }: TableRowDataProps<R
     <td
       className="table-cell"
       style={{ textAlign: column.align ?? 'left' }}
+      dir={column.dir}
       data-column={column.key ?? column.accessor}
     >
       {column.render ? column.render(value, row, rowIndex) : (value as ReactNode)}

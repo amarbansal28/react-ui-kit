@@ -46,7 +46,7 @@ function TableInner<Row>({
   className = '',
 }: TableProps<Row>) {
   const searchConfig = useMemo(() => ({ visible: true, placeholder: 'Search…', ...search }), [search])
-  const filterConfig = useMemo(() => ({ visible: true, ...filters }), [filters])
+  const filterConfig = useMemo(() => ({ visible: true, position: 'toolbar' as const, ...filters }), [filters])
   const paginationConfig = useMemo(
     () => ({
       visible: true,

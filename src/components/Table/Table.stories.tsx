@@ -60,6 +60,33 @@ export const CheckboxFilter: Story = {
   },
 }
 
+export const FiltersInHeader: Story = {
+  name: 'Column filters — positioned under headers',
+  args: {
+    search: { visible: false },
+    filters: { visible: true, position: 'header' },
+    columns: lightColumns.map((column) => {
+      if (column.key === 'status') return { ...column, filterType: 'select' as const }
+      if (column.key === 'name') return { ...column, filterable: true }
+      return column
+    }),
+  },
+}
+
+export const ColumnTextDirection: Story = {
+  name: 'Column text direction (dir)',
+  args: {
+    search: { visible: false },
+    filters: { visible: false },
+    columns: [
+      { key: 'id', header: 'ID', accessor: 'id', width: 60 },
+      { key: 'name', header: 'Name', accessor: 'name' },
+      { key: 'nameArabic', header: 'الاسم', accessor: 'nameArabic', dir: 'rtl', align: 'right' },
+      { key: 'email', header: 'Email', accessor: 'email' },
+    ],
+  },
+}
+
 export const WithRowActions: Story = {
   args: {
     actions: [

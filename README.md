@@ -38,7 +38,7 @@ function Example({ rows }) {
 | `emptyMessage` | `ReactNode` | `'No data available'` | Shown in place of rows when there's nothing to display. |
 | `sortable` | `boolean` | `true` | Master switch for sorting. When `false`, no column sorts regardless of its own `sortable` flag. |
 | `search` | `{ visible?, placeholder? }` | `{ visible: true, placeholder: 'Search…' }` | See [Search config](#search-config). |
-| `filters` | `{ visible? }` | `{ visible: true }` | See [Filters config](#filters-config). |
+| `filters` | `FilterConfig` | `{ visible: true, position: 'toolbar' }` | See [Filters config](#filters-config). |
 | `pagination` | `PaginationConfig` | see below | See [Pagination config](#pagination-config). Ignored (only the lazy footer renders) when `mode="lazy"`. |
 | `actions` | `Action[]` | `[]` | Adds a kebab-menu column. See [Actions](#actions). Omit or pass `[]` to hide the column entirely. |
 | `actionColumnLabel` | `ReactNode` | `'Actions'` | Header label for the actions column. |
@@ -63,11 +63,12 @@ Each entry in `columns` is an object:
 | `header` | `ReactNode` | — | Column header content. |
 | `width` | `number \| string` | `undefined` | Passed through to the `<th>`'s inline `width` style. |
 | `align` | `'left' \| 'center' \| 'right'` | `'left'` | Text alignment for both the header and body cells. |
+| `dir` | `'ltr' \| 'rtl' \| 'auto'` | `undefined` (inherits the page's direction) | Text direction for this column's header and body cells, set as the native HTML `dir` attribute — for right-to-left content (Arabic, Hebrew, …) in an otherwise left-to-right table, or vice versa. `'auto'` lets the browser infer direction per cell from its content. Independent of `align`: `dir` controls reading direction and punctuation placement, not visual alignment — browsers do right-align `dir="rtl"` content by default, but set `align="right"` explicitly if you rely on that. |
 | `sortable` | `boolean` | `true` | Whether this column shows a sort toggle (also gated by the table-level `sortable` prop). |
 | `sortFn` | `(valueA, valueB, rowA, rowB) => number` | natural string/number compare | Custom comparator, same contract as `Array.prototype.sort`. |
 | `searchable` | `boolean` | `true` | Whether this column's value is checked by the global search box. |
-| `filterable` | `boolean` | `false` | Whether this column gets a filter control in the toolbar. |
-| `filterType` | `'text' \| 'select' \| 'radio' \| 'checkbox'` | `'select'` if `filterOptions` is set, else `'text'` | Which control renders in the toolbar. See [Filter types](#filter-types) below. |
+| `filterable` | `boolean` | `false` | Whether this column gets a filter control (in the toolbar or under its header — see [Filters config](#filters-config)). |
+| `filterType` | `'text' \| 'select' \| 'radio' \| 'checkbox'` | `'select'` if `filterOptions` is set, else `'text'` | Which control renders. See [Filter types](#filter-types) below. |
 | `filterOptions` | `Array<string \| { value, label }>` | `undefined` | Options for `'select'`, `'radio'`, and `'checkbox'` filter types. Ignored (and irrelevant) for `'text'`, which is always a free-text input matched case-insensitively. |
 | `render` | `(value, row, rowIndex) => ReactNode` | identity | Custom cell renderer. `value` is whatever `accessor` produced. |
 
@@ -81,9 +82,15 @@ Set `visible: false` to hide the search box entirely. A column is included in se
 ### Filters config
 
 ```jsx
-filters={{ visible: true }}
+filters={{ visible: true, position: 'toolbar' }}
 ```
-Set `visible: false` to hide the whole filter row, even if columns declare `filterable: true`. Only columns with `filterable: true` render a control; a "Clear filters" button appears automatically once any filter is active.
+
+| Field | Default | Description |
+| --- | --- | --- |
+| `visible` | `true` | Set `false` to hide filters entirely, even if columns declare `filterable: true`. |
+| `position` | `'toolbar'` | `'toolbar'`: every filterable column's control renders together in one row above the table, alongside search. `'header'`: each filterable column's control renders in its own cell in a dedicated row directly under the column headers (Excel/AG-Grid style); non-filterable columns get an empty cell to keep alignment. |
+
+Only columns with `filterable: true` render a control. A "Clear filters" button appears automatically once any filter is active — in the filter row itself when `position: 'toolbar'`, or in the toolbar (which renders just for this) when `position: 'header'`, since there's no natural place for it in the header row.
 
 ### Filter types
 
@@ -111,6 +118,16 @@ columns={[
 | `'checkbox'` | Checkbox group | `string[]` | Row matches if its value equals **any** checked option (OR) — unchecking every box clears the filter. |
 
 `'radio'` and `'checkbox'` both require `filterOptions`; each option can be a plain string or `{ value, label }` (same shape as `'select'`'s options). A custom filter value can still be a predicate function (`(value, row) => boolean`) regardless of which control produced it — see [`onStateChange`](#table-props) for reading the current `filters` state, which is a plain object keyed by column.
+
+Any `filterType` works with either `filters.position` — for example, a per-column filter row under the headers:
+
+```jsx
+<Table
+  columns={columns}
+  data={data}
+  filters={{ position: 'header' }}
+/>
+```
 
 ### Pagination config
 

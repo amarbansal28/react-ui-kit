@@ -12,9 +12,15 @@ export interface Order {
   total: number
 }
 
+// Sample Arabic names, used only by the RTL-direction story/demo — a
+// right-to-left script makes Column.dir's effect visually obvious in a way
+// a `dir` attribute on Latin text would not.
+const ARABIC_NAMES = ['محمد أحمد', 'فاطمة علي', 'يوسف حسن', 'مريم خالد', 'عمر سالم']
+
 export interface UserRow {
   id: number
   name: string
+  nameArabic: string
   email: string
   status: string
   signupDate: string
@@ -27,6 +33,7 @@ export function makeRows(count: number): UserRow[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     name: `User ${i + 1}`,
+    nameArabic: ARABIC_NAMES[i % ARABIC_NAMES.length],
     email: `user${i + 1}@example.com`,
     status: STATUS_OPTIONS[i % STATUS_OPTIONS.length],
     signupDate: new Date(2024, i % 12, (i % 28) + 1).toISOString().slice(0, 10),

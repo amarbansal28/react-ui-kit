@@ -39,6 +39,27 @@ describe('<Table>', () => {
     expect(within(rows[0]).getByText('Active')).toBeInTheDocument()
   })
 
+  it('applies a column\'s dir to both its header cell and its body cells', () => {
+    const dirColumns: Column<Row>[] = [
+      { key: 'id', header: 'ID', accessor: 'id' },
+      { key: 'name', header: 'الاسم', accessor: 'name', dir: 'rtl' },
+    ]
+    render(<Table columns={dirColumns} data={makeRows(2)} getRowId={(r) => r.id} />)
+
+    const headerCell = screen.getByRole('columnheader', { name: 'الاسم' })
+    expect(headerCell).toHaveAttribute('dir', 'rtl')
+
+    const bodyCell = screen.getByText('User 1').closest('td')!
+    expect(bodyCell).toHaveAttribute('dir', 'rtl')
+  })
+
+  it('leaves dir unset on columns that do not specify one', () => {
+    render(<Table columns={columns} data={makeRows(1)} getRowId={(r) => r.id} />)
+
+    const idHeaderCell = screen.getByRole('columnheader', { name: 'ID' })
+    expect(idHeaderCell).not.toHaveAttribute('dir')
+  })
+
   it('shows the empty message when there is no data', () => {
     render(<Table columns={columns} data={[]} emptyMessage="Nothing here" />)
 
@@ -139,6 +160,60 @@ describe('<Table>', () => {
 
     await user.click(screen.getByRole('button', { name: 'Clear filters' }))
     expect(bodyRows()).toHaveLength(3)
+  })
+
+  it('renders no toolbar at all when search is hidden, filters are header-positioned, and none are active', () => {
+    render(
+      <Table
+        columns={columns}
+        data={makeRows(2)}
+        getRowId={(r) => r.id}
+        search={{ visible: false }}
+        filters={{ position: 'header' }}
+      />,
+    )
+
+    expect(document.querySelector('.table-toolbar')).not.toBeInTheDocument()
+  })
+
+  it('renders filter controls under column headers instead of the toolbar when filters.position is "header"', () => {
+    render(
+      <Table
+        columns={columns}
+        data={makeRows(2)}
+        getRowId={(r) => r.id}
+        filters={{ position: 'header' }}
+      />,
+    )
+
+    expect(screen.queryByLabelText('Filter by Status')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Clear filters' })).not.toBeInTheDocument()
+
+    const filterSelect = screen.getByLabelText('Filter by Status')
+    const headerFilterRow = filterSelect.closest('tr')!
+    expect(headerFilterRow.closest('thead')).not.toBeNull()
+  })
+
+  it('filters rows from a header-positioned filter control and shows Clear filters in the toolbar once active', async () => {
+    const user = userEvent.setup()
+    render(
+      <Table
+        columns={columns}
+        data={makeRows(4)}
+        getRowId={(r) => r.id}
+        filters={{ position: 'header' }}
+        pagination={{ visible: false }}
+      />,
+    )
+
+    await user.selectOptions(screen.getByLabelText('Filter by Status'), 'Inactive')
+
+    expect(bodyRows()).toHaveLength(2)
+    const clearButton = screen.getByRole('button', { name: 'Clear filters' })
+    expect(clearButton.closest('.table-toolbar')).not.toBeNull()
+
+    await user.click(clearButton)
+    expect(bodyRows()).toHaveLength(4)
   })
 
   it('paginates data and updates the visible page', async () => {
